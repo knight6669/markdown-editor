@@ -1,110 +1,126 @@
-# Knight Markdown Studio
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&height=240&color=0:0f766e,100:7dd3fc&text=Knight%20Markdown%20Studio&fontColor=ffffff&fontAlignY=40&desc=Real-time%20Markdown%20workspace&descAlignY=62&animation=fadeIn" alt="Knight Markdown Studio banner" />
+</div>
 
-实时 Markdown 编辑工作台。
+<div align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Manrope&weight=700&size=20&duration=3000&pause=900&color=0F766E&center=true&vCenter=true&width=820&lines=Write+in+Markdown.+See+it+instantly.;Outline%2C+history%2C+export%2C+and+theme+control+in+one+workspace.;Built+for+long-form+writing%2C+notes%2C+docs%2C+and+developer+content." alt="Animated product summary" />
+</div>
 
-Knight Markdown Studio 是一个面向写作者、开发者和内容创作者的单页面 Markdown 编辑器：左侧专注写作，右侧即时渲染，结构、预览、导出、草稿恢复和命令操作都在一个工作台里完成。
+<p align="center">
+  A polished single-page Markdown editor built for people who want more than a plain textarea:
+  live preview, outline navigation, snapshot history, export tools, theme switching, and a product-grade writing surface.
+</p>
 
-它不是只会“写 Markdown”的输入框，而是一套更完整的写作体验：
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-111827?logo=react&logoColor=61DAFB" alt="React 19" />
+  <img src="https://img.shields.io/badge/TypeScript-6-111827?logo=typescript&logoColor=3178C6" alt="TypeScript 6" />
+  <img src="https://img.shields.io/badge/Vite-8-111827?logo=vite&logoColor=646CFF" alt="Vite 8" />
+  <img src="https://img.shields.io/badge/CodeMirror-6-111827?logo=codemirror&logoColor=F97316" alt="CodeMirror 6" />
+  <img src="https://img.shields.io/badge/Markdown--it-GFM-111827?logo=markdown&logoColor=ffffff" alt="Markdown-it GFM" />
+</p>
 
-- 一边输入，一边看到真实排版结果
-- 一边组织结构，一边快速跳转和定位
-- 一边保存草稿，一边放心修改和回滚
-- 一边导出内容，一边保持交付效率
+## What It Is
+
+Knight Markdown Studio is a real-time Markdown workspace designed to feel like a product, not a demo.
+
+It combines:
+
+- a focused source editor on the left
+- a fast rendered preview on the right
+- structure tools for long documents
+- export and print workflows for delivery
+- draft persistence so work is never far from recovery
+
+The goal is simple: keep writing, structure, preview, and output in the same calm interface.
+
+## UI Preview
+
+### Desktop Workspace
+
+The main workspace is designed to be screenshot-ready: balanced spacing, restrained chrome, modern surfaces, and a split layout that feels like a real writing product.
+
+![Light workspace](./docs/assets/workspace-light.png)
+
+### Theme Switching
+
+Light mode and dark mode are both first-class views. The app supports `light`, `dark`, and `system` theme modes, and remembers the user's preference across sessions.
+
+| Light Theme | Dark Theme |
+| --- | --- |
+| ![Light theme workspace](./docs/assets/workspace-light.png) | ![Dark theme workspace](./docs/assets/workspace-dark.png) |
+
+### Preview and Code Highlighting
+
+Rendered Markdown includes highlighted code blocks, readable content rhythm, and a presentation layer suitable for export.
+
+![Dark preview with code highlighting](./docs/assets/preview-dark.png)
 
 ## Product Highlights
 
-- 双栏实时编辑体验
-  左侧基于 CodeMirror 的 Markdown 源码编辑区，右侧安全渲染的 GFM 实时预览。
+### Real-Time Markdown Editing
 
-- 更适合长文档的工作流
-  支持大纲导航、查找替换、命令面板、历史快照和块级滚动同步，处理结构化内容更轻松。
+- Write in Markdown and see the formatted result update in real time
+- Debounced preview updates keep the UI responsive
+- GitHub Flavored Markdown support for headings, emphasis, lists, tasks, tables, links, images, quotes, and footnotes
 
-- 为移动端重新设计过
-  手机端支持 `编辑 / 预览 / 分屏` 三态切换，不只是简单把桌面布局压缩到小屏。
+### Product-Grade Writing Surface
 
-- 导入、导出和打印一站完成
-  支持导入 `.md`、导出 `.md`、导出独立 `.html`、复制 HTML、PDF/打印。
+- Modern top bar with branded product treatment
+- Resizable split layout on desktop
+- Mobile `editor / preview / split` modes
+- Focus mode and fullscreen mode for distraction control
 
-- 更稳的草稿体系
-  自动保存到本地，刷新后自动恢复；还保留最近历史快照，降低误删和误改风险。
+### Theme System
 
-- 更顺手的图片体验
-  支持拖拽插入图片、粘贴图片 URL、直接粘贴图片文件，并避免把超长 base64 塞满源码区。
+- Light theme
+- Dark theme
+- Follow-system theme mode
+- Adjustable font size
+- Adjustable preview width
+- Switchable code font preferences
 
-## Core Experience
+### Code-Friendly Markdown Experience
 
-### 1. Write
+- CodeMirror 6 editing engine
+- Toolbar actions for common Markdown syntax
+- Keyboard shortcuts for fast formatting
+- Syntax highlighting inside rendered code blocks
+- Cleaner pasted-image handling without dumping giant base64 blobs into the source view
 
-- 支持 GitHub Flavored Markdown
-- 支持标题、粗体、斜体、删除线、列表、任务列表、表格、引用、链接、图片、脚注
-- 支持代码块与语法高亮
-- 支持常用 Markdown 工具栏和快捷键
+### Built for Longer Documents
 
-### 2. Preview
+- Auto-generated outline from `#`, `##`, and `###`
+- Click-to-jump outline navigation
+- Block-level scroll sync between source and preview
+- Find and replace
+- Command palette for common actions
+- Character count, line count, and word-goal tracking
 
-- 输入后 200ms 内实时更新预览
-- 安全渲染 HTML，避免不可信内容直接注入
-- 预览支持阅读宽度控制
-- 小图片按实际尺寸显示，不会被强行铺满整列
+### Draft Safety
 
-### 3. Navigate
+- Autosave to local storage
+- Restore the latest draft after refresh
+- Snapshot history for recent recovery points
+- Reset and restore controls for fast iteration
 
-- 自动提取 `# / ## / ###` 生成文档大纲
-- 点击大纲可同步跳转到对应内容位置
-- 编辑区与预览区支持块级滚动同步
-- 长文档写作时更容易保持上下文
+### Import, Export, and Delivery
 
-### 4. Export
+- Import `.md`
+- Export raw Markdown
+- Export standalone HTML with styling
+- Copy rendered HTML
+- Print / PDF workflow
 
-- 导出 Markdown 源文件
-- 导出带样式的独立 HTML 文件
-- 一键复制 HTML
-- PDF / 打印支持
+## Feature Summary
 
-## Feature List
-
-### Editing
-
-- CodeMirror 6 编辑器
-- 工具栏插入 Markdown 语法
-- 快捷键支持
-- 自动换行开关
-- 行号开关
-- 查找替换
-- 命令面板
-
-### Layout
-
-- 桌面端左右拖拽分栏
-- 移动端上下布局
-- 移动端 `编辑 / 预览 / 分屏` 三态切换
-- 专注模式
-- 全屏模式
-
-### Writing Support
-
-- 字符数 / 行数统计
-- 字数目标
-- 草稿自动保存
-- 草稿恢复
-- 历史快照回滚
-- 文档大纲高亮
-
-### Media & Files
-
-- 导入 `.md`
-- 拖拽导入 Markdown 文件
-- 拖拽插入图片
-- 粘贴图片 URL
-- 粘贴图片文件
-
-### Theme & Preferences
-
-- 浅色 / 深色 / 跟随系统
-- 字体大小调节
-- 预览宽度调节
-- 代码字体切换
-- 移动端默认视图偏好记忆
+| Area | What it covers |
+| --- | --- |
+| Editing | Markdown toolbar, shortcuts, line wrapping, line numbers, find/replace |
+| Navigation | Outline panel, jump-to-heading, block sync |
+| Presentation | Light/dark themes, preview width control, polished preview styling |
+| Media | Drag-and-drop images, paste image URLs, paste image files |
+| Output | Markdown export, HTML export, copy HTML, PDF/print |
+| Recovery | Autosave, draft restore, snapshot history |
 
 ## Tech Stack
 
@@ -115,7 +131,7 @@ Knight Markdown Studio 是一个面向写作者、开发者和内容创作者的
 - markdown-it
 - highlight.js
 - DOMPurify
-- Vitest + Testing Library
+- Vitest and Testing Library
 
 ## Local Development
 
@@ -125,25 +141,25 @@ Knight Markdown Studio 是一个面向写作者、开发者和内容创作者的
 npm install
 ```
 
-### Start Dev Server
+### Run the dev server
 
 ```bash
 npm run dev
 ```
 
-默认开发地址通常是：
+Typical local address:
 
 ```text
 http://localhost:5173/
 ```
 
-### Build Production Assets
+### Build the production bundle
 
 ```bash
 npm run build
 ```
 
-### Preview Production Build
+### Preview the production build locally
 
 ```bash
 npm run preview
@@ -152,53 +168,57 @@ npm run preview
 ## Available Scripts
 
 ```bash
-npm run dev      # 启动开发环境
-npm run build    # 构建生产版本
-npm run preview  # 本地预览生产包
-npm run lint     # 代码规范检查
-npm run test     # 运行测试
+npm run dev
+npm run build
+npm run preview
+npm run lint
+npm run test
 ```
 
-## Project Structure
+## Repository Structure
 
 ```text
 src/
-  components/    UI 组件
-  hooks/         编辑器、预览、偏好设置等 hooks
-  lib/           Markdown 渲染、存储、导出、编辑逻辑
-  types/         类型定义
+  components/    UI building blocks
+  hooks/         editor, preview, fullscreen, media query, preferences
+  lib/           markdown rendering, storage, export, sync, transforms
+  types/         shared editor and markdown types
+
+docs/assets/     README screenshots
 ```
 
-## Why This Project
+## Why This Project Exists
 
-很多 Markdown 编辑器只解决“输入”这一个动作，但真实写作往往是四件事同时发生：
+Many Markdown editors solve only one thing: typing.
 
-1. 写内容
-2. 看结构
-3. 调排版
-4. 防止丢稿
+Real writing usually needs four things at once:
 
-Knight Markdown Studio 想把这四件事放进同一个干净、现代、可持续扩展的工作台里。
+1. write
+2. structure
+3. preview
+4. recover
 
-## Quality
+Knight Markdown Studio is built to keep all four in one deliberate workspace.
 
-当前项目已经覆盖以下工程保障：
+## Quality Checks
 
-- `lint` 代码规范检查
-- `test` 核心行为测试
-- `build` 生产构建验证
+The project is already wired for:
+
+- `npm run lint`
+- `npm run test`
+- `npm run build`
 
 ## Roadmap
 
-- 更完整的 Markdown 资源导出策略
-- 更细的生产包体积优化
-- 可选的在线部署与分享能力
-- 更丰富的写作模板与内容工作流
+- richer Markdown asset export workflows
+- additional package-size optimization
+- optional hosted deployment path
+- more writing templates and publishing-oriented flows
 
 ## License
 
-当前仓库默认按代码仓库方式公开。如需补充正式开源协议，可在后续添加 `LICENSE` 文件。
+This repository is currently published as a public codebase. A dedicated `LICENSE` file can be added later if a formal open-source license is needed.
 
 ---
 
-Copyright © 2026 Knight | 贺. All Rights Reserved.
+Copyright © 2026 Knight | He. All Rights Reserved.
