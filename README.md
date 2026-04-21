@@ -3,12 +3,12 @@
 </div>
 
 <div align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Manrope&weight=700&size=20&duration=3000&pause=900&color=0F766E&center=true&vCenter=true&width=820&lines=Write+in+Markdown.+See+it+instantly.;Outline%2C+history%2C+export%2C+and+theme+control+in+one+workspace.;Built+for+long-form+writing%2C+notes%2C+docs%2C+and+developer+content." alt="Animated product summary" />
+  <img src="https://readme-typing-svg.demolab.com?font=Manrope&weight=700&size=20&duration=3000&pause=900&color=0F766E&center=true&vCenter=true&width=860&lines=%E5%AE%9E%E6%97%B6+Markdown+%E7%BC%96%E8%BE%91%E5%B7%A5%E4%BD%9C%E5%8F%B0;Write+in+Markdown.+See+it+instantly.;%E5%A4%A7%E7%BA%B2%E3%80%81%E5%8E%86%E5%8F%B2%E5%BF%AB%E7%85%A7%E3%80%81%E5%AF%BC%E5%87%BA%E4%B8%8E%E4%B8%BB%E9%A2%98%E5%88%87%E6%8D%A2%E5%90%8C%E5%B1%8F%E5%8D%8F%E4%BD%9C." alt="Animated product summary" />
 </div>
 
 <p align="center">
-  A polished single-page Markdown editor built for people who want more than a plain textarea:
-  live preview, outline navigation, snapshot history, export tools, theme switching, and a product-grade writing surface.
+  一个更完整的 Markdown 工作台：左侧专注源码写作，右侧即时预览排版结果，
+  同时提供大纲导航、历史快照、导出能力、主题切换与更像产品而不是 Demo 的编辑体验。
 </p>
 
 <p align="center">
@@ -19,110 +19,100 @@
   <img src="https://img.shields.io/badge/Markdown--it-GFM-111827?logo=markdown&logoColor=ffffff" alt="Markdown-it GFM" />
 </p>
 
-## What It Is
+## 项目简介
 
-Knight Markdown Studio is a real-time Markdown workspace designed to feel like a product, not a demo.
+Knight Markdown Studio 是一个单页面 Markdown 编辑器，但目标不只是“能写 Markdown”。
 
-It combines:
+它更像一个写作工作台，把这些能力放到同一个界面里：
 
-- a focused source editor on the left
-- a fast rendered preview on the right
-- structure tools for long documents
-- export and print workflows for delivery
-- draft persistence so work is never far from recovery
+- 左侧源码编辑，右侧实时渲染
+- 文档结构与大纲跳转
+- 草稿自动保存与历史快照恢复
+- HTML / PDF / Markdown 导出
+- 浅色、深色与跟随系统主题
 
-The goal is simple: keep writing, structure, preview, and output in the same calm interface.
+它适合：
 
-## UI Preview
+- 技术文档
+- 知识笔记
+- 长文写作
+- 开发者内容
+- 需要边写边看排版结果的 Markdown 工作流
 
-### Desktop Workspace
+## 界面预览
 
-The main workspace is designed to be screenshot-ready: balanced spacing, restrained chrome, modern surfaces, and a split layout that feels like a real writing product.
+### 产品总览
 
-![Light workspace](./docs/assets/workspace-light.png)
+主界面采用双栏工作区布局，保留产品感的品牌头部、结构导航和实时预览区域，适合长期编辑与内容管理。
 
-### Theme Switching
+![Knight Markdown Studio light workspace](./docs/assets/workspace-light.png)
 
-Light mode and dark mode are both first-class views. The app supports `light`, `dark`, and `system` theme modes, and remembers the user's preference across sessions.
+### 深色主题与代码高亮
 
-| Light Theme | Dark Theme |
+应用支持 `light`、`dark` 和 `system` 三种主题模式；预览区支持代码块高亮，适合技术内容写作与导出。
+
+![Knight Markdown Studio dark preview](./docs/assets/preview-dark.png)
+
+## 核心能力
+
+### 1. 实时 Markdown 编辑
+
+- 左侧基于 CodeMirror 6 的源码编辑区
+- 右侧即时渲染的 GFM 预览
+- 支持标题、粗体、斜体、删除线、列表、任务列表、表格、链接、图片、引用、脚注
+- 输入后快速更新预览，保持写作连续性
+
+### 2. 主题切换与产品化界面
+
+- 浅色主题
+- 深色主题
+- 跟随系统主题
+- 可调字体大小
+- 可调预览宽度
+- 可切换代码字体
+
+### 3. 代码块高亮与技术写作体验
+
+- 支持代码块语法高亮
+- 支持行内代码
+- 预览层更适合展示技术内容
+- 深色模式下针对标题、链接、Markdown 标记做了可读性优化
+
+### 4. 面向长文档的结构能力
+
+- 自动提取 `# / ## / ###` 生成文档大纲
+- 点击大纲可跳转到对应位置
+- 编辑区与预览区支持块级滚动同步
+- 支持查找替换
+- 支持命令面板
+
+### 5. 草稿安全与恢复
+
+- 自动保存到本地
+- 刷新后恢复上次草稿
+- 保留最近历史快照
+- 支持快速重置与历史恢复
+
+### 6. 导入、导出与交付
+
+- 导入 `.md`
+- 导出 Markdown
+- 导出独立 HTML
+- 复制 HTML
+- PDF / 打印
+
+## 功能概览
+
+| 模块 | 能力 |
 | --- | --- |
-| ![Light theme workspace](./docs/assets/workspace-light.png) | ![Dark theme workspace](./docs/assets/workspace-dark.png) |
+| 编辑 | Markdown 工具栏、快捷键、自动换行、行号开关、查找替换 |
+| 导航 | 大纲面板、标题跳转、块级同步 |
+| 展示 | 浅色/深色主题、预览宽度、产品化预览样式 |
+| 媒体 | 拖拽图片、粘贴图片 URL、粘贴图片文件 |
+| 导出 | Markdown、HTML、复制 HTML、PDF/打印 |
+| 恢复 | 自动保存、草稿恢复、历史快照 |
 
-### Preview and Code Highlighting
-
-Rendered Markdown includes highlighted code blocks, readable content rhythm, and a presentation layer suitable for export.
-
-![Dark preview with code highlighting](./docs/assets/preview-dark.png)
-
-## Product Highlights
-
-### Real-Time Markdown Editing
-
-- Write in Markdown and see the formatted result update in real time
-- Debounced preview updates keep the UI responsive
-- GitHub Flavored Markdown support for headings, emphasis, lists, tasks, tables, links, images, quotes, and footnotes
-
-### Product-Grade Writing Surface
-
-- Modern top bar with branded product treatment
-- Resizable split layout on desktop
-- Mobile `editor / preview / split` modes
-- Focus mode and fullscreen mode for distraction control
-
-### Theme System
-
-- Light theme
-- Dark theme
-- Follow-system theme mode
-- Adjustable font size
-- Adjustable preview width
-- Switchable code font preferences
-
-### Code-Friendly Markdown Experience
-
-- CodeMirror 6 editing engine
-- Toolbar actions for common Markdown syntax
-- Keyboard shortcuts for fast formatting
-- Syntax highlighting inside rendered code blocks
-- Cleaner pasted-image handling without dumping giant base64 blobs into the source view
-
-### Built for Longer Documents
-
-- Auto-generated outline from `#`, `##`, and `###`
-- Click-to-jump outline navigation
-- Block-level scroll sync between source and preview
-- Find and replace
-- Command palette for common actions
-- Character count, line count, and word-goal tracking
-
-### Draft Safety
-
-- Autosave to local storage
-- Restore the latest draft after refresh
-- Snapshot history for recent recovery points
-- Reset and restore controls for fast iteration
-
-### Import, Export, and Delivery
-
-- Import `.md`
-- Export raw Markdown
-- Export standalone HTML with styling
-- Copy rendered HTML
-- Print / PDF workflow
-
-## Feature Summary
-
-| Area | What it covers |
-| --- | --- |
-| Editing | Markdown toolbar, shortcuts, line wrapping, line numbers, find/replace |
-| Navigation | Outline panel, jump-to-heading, block sync |
-| Presentation | Light/dark themes, preview width control, polished preview styling |
-| Media | Drag-and-drop images, paste image URLs, paste image files |
-| Output | Markdown export, HTML export, copy HTML, PDF/print |
-| Recovery | Autosave, draft restore, snapshot history |
-
-## Tech Stack
+## 技术栈
 
 - React 19
 - TypeScript
@@ -131,41 +121,41 @@ Rendered Markdown includes highlighted code blocks, readable content rhythm, and
 - markdown-it
 - highlight.js
 - DOMPurify
-- Vitest and Testing Library
+- Vitest + Testing Library
 
-## Local Development
+## 本地开发
 
-### Install
+### 安装依赖
 
 ```bash
 npm install
 ```
 
-### Run the dev server
+### 启动开发环境
 
 ```bash
 npm run dev
 ```
 
-Typical local address:
+常见本地地址：
 
 ```text
 http://localhost:5173/
 ```
 
-### Build the production bundle
+### 构建生产版本
 
 ```bash
 npm run build
 ```
 
-### Preview the production build locally
+### 本地预览生产包
 
 ```bash
 npm run preview
 ```
 
-## Available Scripts
+## 可用脚本
 
 ```bash
 npm run dev
@@ -175,34 +165,34 @@ npm run lint
 npm run test
 ```
 
-## Repository Structure
+## 目录结构
 
 ```text
 src/
-  components/    UI building blocks
-  hooks/         editor, preview, fullscreen, media query, preferences
-  lib/           markdown rendering, storage, export, sync, transforms
-  types/         shared editor and markdown types
+  components/    UI 组件
+  hooks/         编辑器、预览、全屏、偏好设置等 hooks
+  lib/           Markdown 渲染、存储、导出、同步与编辑逻辑
+  types/         类型定义
 
-docs/assets/     README screenshots
+docs/assets/     README 展示截图
 ```
 
-## Why This Project Exists
+## 为什么做这个项目
 
-Many Markdown editors solve only one thing: typing.
+很多 Markdown 编辑器只解决一件事：输入。
 
-Real writing usually needs four things at once:
+但真实写作通常同时需要四件事：
 
-1. write
-2. structure
-3. preview
-4. recover
+1. 写内容
+2. 看结构
+3. 预览排版
+4. 防止丢稿
 
-Knight Markdown Studio is built to keep all four in one deliberate workspace.
+Knight Markdown Studio 想把这四件事收进同一个干净、现代、可持续扩展的工作台里。
 
-## Quality Checks
+## 质量保障
 
-The project is already wired for:
+当前项目已经覆盖这些基础检查：
 
 - `npm run lint`
 - `npm run test`
@@ -210,15 +200,11 @@ The project is already wired for:
 
 ## Roadmap
 
-- richer Markdown asset export workflows
-- additional package-size optimization
-- optional hosted deployment path
-- more writing templates and publishing-oriented flows
+- 更完整的 Markdown 资源导出策略
+- 更细的生产包体积优化
+- 可选的在线部署路径
+- 更丰富的模板与内容工作流
 
 ## License
 
-This repository is currently published as a public codebase. A dedicated `LICENSE` file can be added later if a formal open-source license is needed.
-
----
-
-Copyright © 2026 Knight | He. All Rights Reserved.
+本项目基于 [MIT License](./LICENSE) 开源。
