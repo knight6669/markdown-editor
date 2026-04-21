@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  color-scheme: light dark;
+  --app-bg: #f3f1eb;
+  --app-bg-soft: #e7ece7;
+  --surface-strong: rgba(255, 253, 248, 0.92);
+  --surface-soft: rgba(255, 255, 255, 0.72);
+  --surface-alt: rgba(248, 250, 246, 0.9);
+  --border-color: rgba(24, 45, 43, 0.12);
+  --border-highlight: rgba(9, 127, 122, 0.28);
+  --headline-text: #152323;
+  --body-text: #273938;
+  --muted-text: #5f7471;
+  --accent-strong: #097f7a;
+  --accent-soft: #4ab6a2;
+  --focus-ring: rgba(74, 182, 162, 0.38);
+  --panel-shadow:
+    0 1.3rem 3.6rem -2rem rgba(15, 32, 31, 0.34),
+    0 0.4rem 1.2rem rgba(15, 32, 31, 0.08);
+  --selection: rgba(74, 182, 162, 0.24);
+  --editor-active-line: rgba(9, 127, 122, 0.06);
+  --editor-gutter: rgba(95, 116, 113, 0.92);
+  --danger-text: #9e433f;
+  --preview-content-width: 58rem;
+  --editor-font-size: 16px;
+  --app-code-font:
+    "IBM Plex Mono", "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  font-family:
+    'Manrope',
+    'PingFang SC',
+    'Microsoft YaHei',
+    'Noto Sans SC',
+    system-ui,
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--body-text);
+  background:
+    radial-gradient(circle at top left, rgba(74, 182, 162, 0.16), transparent 28rem),
+    radial-gradient(circle at top right, rgba(9, 127, 122, 0.08), transparent 24rem),
+    linear-gradient(180deg, var(--app-bg), var(--app-bg-soft));
+}
+
+:root[data-theme='dark'] {
+  --app-bg: #091315;
+  --app-bg-soft: #0d1d20;
+  --surface-strong: rgba(11, 22, 24, 0.94);
+  --surface-soft: rgba(14, 28, 31, 0.82);
+  --surface-alt: rgba(17, 35, 39, 0.84);
+  --border-color: rgba(166, 219, 210, 0.12);
+  --border-highlight: rgba(74, 182, 162, 0.24);
+  --headline-text: #eff8f5;
+  --body-text: #d8e6e1;
+  --muted-text: #8ca8a2;
+  --accent-strong: #5bd4c3;
+  --accent-soft: #1d8d8a;
+  --focus-ring: rgba(91, 212, 195, 0.26);
+  --panel-shadow:
+    0 1.8rem 3.8rem -2.1rem rgba(0, 0, 0, 0.72),
+    0 0.4rem 1.2rem rgba(0, 0, 0, 0.28);
+  --selection: rgba(91, 212, 195, 0.22);
+  --editor-active-line: rgba(91, 212, 195, 0.08);
+  --editor-gutter: rgba(140, 168, 162, 0.92);
+  --danger-text: #ffb2ab;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-block-size: 100%;
+}
+
+body {
+  min-inline-size: 320px;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+img {
+  max-inline-size: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
