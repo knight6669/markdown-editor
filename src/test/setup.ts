@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom/vitest'
 import { beforeEach } from 'vitest'
+import { resetImageAssetRuntimeStateForTests } from '../lib/image-assets'
 
 class ResizeObserverMock {
   observe() {}
@@ -81,5 +82,6 @@ Object.defineProperty(Range.prototype, 'getClientRects', {
 })
 
 beforeEach(() => {
+  resetImageAssetRuntimeStateForTests()
   window.localStorage.clear()
 })
