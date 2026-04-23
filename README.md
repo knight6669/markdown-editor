@@ -158,6 +158,6 @@ public/          静态资源
 
 本项目基于 [MIT License](./LICENSE) 开源。 | 随便用哈哈哈
 
-##关于作者
+## 关于作者
 
 Knight | 贺 |  持续探索vibe-condig
