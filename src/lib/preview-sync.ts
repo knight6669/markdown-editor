@@ -1,9 +1,12 @@
 import type { MarkdownOutlineItem } from '../types/editor'
 
 export type PreviewAnchor = {
+  element: HTMLElement
   lineStart: number
-  top: number
+  lineEnd: number
   slug: string | null
+  depth: number
+  order: number
 }
 
 export function findPreviewHeadingElement(
@@ -29,22 +32,85 @@ export function scrollPreviewHeadingIntoView(
     return false
   }
 
-  headingElement.scrollIntoView({
-    behavior: 'smooth',
-    block: 'start',
-    inline: 'nearest',
-  })
+  const top = getElementTopWithinContainer(container, headingElement, 18)
+  if (typeof container.scrollTo === 'function') {
+    container.scrollTo({
+      top,
+      behavior: 'smooth',
+    })
+  } else {
+    container.scrollTop = top
+  }
   return true
 }
 
 export function collectPreviewAnchors(container: HTMLElement) {
   return Array.from(
     container.querySelectorAll<HTMLElement>('.md-source-block[data-source-line]'),
-  ).map((element) => ({
-    lineStart: Number(element.dataset.sourceLine),
-    top: element.offsetTop,
-    slug: element.dataset.headingSlug ?? null,
-  }))
+  ).map((element, order) => {
+    const lineStart = Number(element.dataset.sourceLine)
+    const lineEnd = Number(element.dataset.sourceLineEnd ?? lineStart)
+
+    return {
+      element,
+      lineStart,
+      lineEnd: Number.isFinite(lineEnd) ? Math.max(lineStart, lineEnd) : lineStart,
+      slug: element.dataset.headingSlug ?? null,
+      depth: getElementDepthWithin(container, element),
+      order,
+    }
+  })
+}
+
+export function scrollPreviewAnchorIntoView(
+  container: HTMLElement,
+  anchor: PreviewAnchor,
+  behavior: ScrollBehavior = 'auto',
+) {
+  const headingElement = findPreviewHeadingElement(container, anchor.slug)
+  const targetElement = headingElement ?? anchor.element
+  const top = getElementTopWithinContainer(container, targetElement, 18)
+
+  if (behavior === 'auto') {
+    container.scrollTop = top
+  } else if (typeof container.scrollTo === 'function') {
+    container.scrollTo({
+      top,
+      behavior,
+    })
+  } else {
+    container.scrollTop = top
+  }
+
+  return top
+}
+
+export function getPreviewTargetTopForLine(
+  container: HTMLElement,
+  anchors: PreviewAnchor[],
+  lineStart: number,
+) {
+  const anchor = findPreviewAnchorForLine(anchors, lineStart)
+  if (!anchor) {
+    return null
+  }
+
+  const currentElement =
+    findPreviewHeadingElement(container, anchor.slug) ?? anchor.element
+  const currentTop = getElementTopWithinContainer(container, currentElement, 18)
+  const nextAnchor = anchors.find((candidate) => candidate.order > anchor.order)
+
+  if (!nextAnchor) {
+    return currentTop
+  }
+
+  const nextElement =
+    findPreviewHeadingElement(container, nextAnchor.slug) ?? nextAnchor.element
+  const nextTop = getElementTopWithinContainer(container, nextElement, 18)
+  const lineSpan = Math.max(nextAnchor.lineStart - anchor.lineStart, 1)
+  const progress = clamp((lineStart - anchor.lineStart) / lineSpan, 0, 1)
+
+  return currentTop + (nextTop - currentTop) * progress
 }
 
 export function findPreviewAnchorForLine(anchors: PreviewAnchor[], lineStart: number) {
@@ -52,23 +118,25 @@ export function findPreviewAnchorForLine(anchors: PreviewAnchor[], lineStart: nu
     return null
   }
 
-  let low = 0
-  let high = anchors.length - 1
-  let match = anchors[0]
+  let containing: PreviewAnchor | null = null
+  let previous: PreviewAnchor | null = null
+  let next: PreviewAnchor | null = null
 
-  while (low <= high) {
-    const mid = Math.floor((low + high) / 2)
-    const current = anchors[mid]
-
+  for (const current of anchors) {
     if (current.lineStart <= lineStart) {
-      match = current
-      low = mid + 1
-    } else {
-      high = mid - 1
+      previous = current
+    } else if (!next) {
+      next = current
+    }
+
+    if (current.lineStart <= lineStart && current.lineEnd >= lineStart) {
+      if (!containing || isBetterAnchorMatch(current, containing)) {
+        containing = current
+      }
     }
   }
 
-  return match
+  return containing ?? previous ?? next ?? anchors[0]
 }
 
 export function findPreviewAnchorForScrollTop(
@@ -79,20 +147,15 @@ export function findPreviewAnchorForScrollTop(
     return null
   }
 
-  let low = 0
-  let high = anchors.length - 1
   let match = anchors[0]
 
-  while (low <= high) {
-    const mid = Math.floor((low + high) / 2)
-    const current = anchors[mid]
-
-    if (current.top <= scrollTop + 24) {
+  for (const current of anchors) {
+    if (current.element.offsetTop <= scrollTop + 24) {
       match = current
-      low = mid + 1
-    } else {
-      high = mid - 1
+      continue
     }
+
+    break
   }
 
   return match
@@ -117,4 +180,52 @@ export function getActiveOutlineSlug(
 
 function escapeAttributeValue(value: string) {
   return value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')
+}
+
+function getElementTopWithinContainer(
+  container: HTMLElement,
+  element: HTMLElement,
+  offset = 0,
+) {
+  const containerRect = container.getBoundingClientRect()
+  const elementRect = element.getBoundingClientRect()
+  return Math.max(
+    container.scrollTop + (elementRect.top - containerRect.top) - offset,
+    0,
+  )
+}
+
+function getElementDepthWithin(container: HTMLElement, element: HTMLElement) {
+  let depth = 0
+  let current = element.parentElement
+
+  while (current && current !== container) {
+    depth += 1
+    current = current.parentElement
+  }
+
+  return depth
+}
+
+function isBetterAnchorMatch(candidate: PreviewAnchor, current: PreviewAnchor) {
+  const candidateSpan = candidate.lineEnd - candidate.lineStart
+  const currentSpan = current.lineEnd - current.lineStart
+
+  if (candidateSpan !== currentSpan) {
+    return candidateSpan < currentSpan
+  }
+
+  if (candidate.depth !== current.depth) {
+    return candidate.depth > current.depth
+  }
+
+  if (candidate.lineStart !== current.lineStart) {
+    return candidate.lineStart > current.lineStart
+  }
+
+  return candidate.order > current.order
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
 }

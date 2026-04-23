@@ -213,12 +213,22 @@ export function scrollEditorToLine(view: EditorView, lineNumber: number) {
 }
 
 export function getFirstVisibleEditorLine(view: EditorView) {
-  const firstBlock = view.viewportLineBlocks[0]
+  const scrollTop = view.scrollDOM.scrollTop + 24
+  const firstBlock =
+    typeof view.lineBlockAtHeight === 'function'
+      ? view.lineBlockAtHeight(scrollTop)
+      : view.viewportLineBlocks[0]
+
   if (!firstBlock) {
     return 1
   }
 
   return view.state.doc.lineAt(firstBlock.from).number
+}
+
+export function getCurrentEditorLine(view: EditorView) {
+  const selection = view.state.selection.main
+  return view.state.doc.lineAt(selection.head).number
 }
 
 function dispatchEditorTransform(

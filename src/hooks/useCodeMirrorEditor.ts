@@ -17,6 +17,8 @@ import {
   readFileAsDataUrl,
 } from '../lib/file'
 import {
+  getFirstVisibleEditorLine,
+  getCurrentEditorLine,
   getSelectedEditorText,
   insertImage,
   insertOrderedList,
@@ -36,6 +38,8 @@ type UseCodeMirrorEditorArgs = {
   onOpenCommandPalette: () => void
   onOpenFindPanel: () => void
   onSave: () => void
+  onActiveLineChange?: (lineNumber: number) => void
+  onVisibleLineChange?: (lineNumber: number) => void
 }
 
 const EDITOR_BODY_FONT_STACK =
@@ -51,6 +55,8 @@ export function useCodeMirrorEditor({
   onOpenCommandPalette,
   onOpenFindPanel,
   onSave,
+  onActiveLineChange,
+  onVisibleLineChange,
 }: UseCodeMirrorEditorArgs) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const editorViewRef = useRef<EditorView | null>(null)
@@ -59,6 +65,8 @@ export function useCodeMirrorEditor({
   const initialLineWrappingRef = useRef(lineWrapping)
   const initialThemeRef = useRef(resolvedTheme)
   const isApplyingExternalChangeRef = useRef(false)
+  const lastActiveLineRef = useRef<number | null>(null)
+  const lastVisibleLineRef = useRef<number | null>(null)
   const lineWrappingCompartmentRef = useRef(new Compartment())
   const themeCompartmentRef = useRef(new Compartment())
   const callbacksRef = useRef({
@@ -68,6 +76,8 @@ export function useCodeMirrorEditor({
     onOpenCommandPalette,
     onOpenFindPanel,
     onSave,
+    onActiveLineChange,
+    onVisibleLineChange,
   })
 
   useEffect(() => {
@@ -78,6 +88,8 @@ export function useCodeMirrorEditor({
       onOpenCommandPalette,
       onOpenFindPanel,
       onSave,
+      onActiveLineChange,
+      onVisibleLineChange,
     }
   }, [
     onChange,
@@ -86,6 +98,8 @@ export function useCodeMirrorEditor({
     onOpenCommandPalette,
     onOpenFindPanel,
     onSave,
+    onActiveLineChange,
+    onVisibleLineChange,
   ])
 
   useEffect(() => {
@@ -104,6 +118,16 @@ export function useCodeMirrorEditor({
       },
     })
 
+    const notifyVisibleLine = (view: EditorView) => {
+      const nextLine = getFirstVisibleEditorLine(view)
+      if (lastVisibleLineRef.current === nextLine) {
+        return
+      }
+
+      lastVisibleLineRef.current = nextLine
+      callbacksRef.current.onVisibleLineChange?.(nextLine)
+    }
+
     const view = new EditorView({
       state: EditorState.create({
         doc: initialMarkdownRef.current,
@@ -119,6 +143,14 @@ export function useCodeMirrorEditor({
           placeholder('在这里写 Markdown，右侧会实时渲染预览。'),
           EditorState.tabSize.of(2),
           EditorView.updateListener.of((update) => {
+            if (update.selectionSet || update.docChanged) {
+              const nextLine = getCurrentEditorLine(update.view)
+              if (lastActiveLineRef.current !== nextLine) {
+                lastActiveLineRef.current = nextLine
+                callbacksRef.current.onActiveLineChange?.(nextLine)
+              }
+            }
+
             if (!update.docChanged) {
               return
             }
@@ -133,6 +165,18 @@ export function useCodeMirrorEditor({
           EditorView.domEventHandlers({
             focus: () => {
               callbacksRef.current.onFocus()
+            },
+            mouseup: (_event, view) => {
+              window.requestAnimationFrame(() => {
+                callbacksRef.current.onActiveLineChange?.(getCurrentEditorLine(view))
+              })
+              return false
+            },
+            keyup: (_event, view) => {
+              window.requestAnimationFrame(() => {
+                callbacksRef.current.onActiveLineChange?.(getCurrentEditorLine(view))
+              })
+              return false
             },
             paste: (event, view) => {
               const clipboardFiles = Array.from(
@@ -199,8 +243,30 @@ export function useCodeMirrorEditor({
 
     editorViewRef.current = view
     setEditorView(view)
+    const initialLine = getCurrentEditorLine(view)
+    lastActiveLineRef.current = initialLine
+    callbacksRef.current.onActiveLineChange?.(initialLine)
+    lastVisibleLineRef.current = getFirstVisibleEditorLine(view)
+
+    let scrollFrameId: number | null = null
+    const handleScroll = () => {
+      if (scrollFrameId !== null) {
+        return
+      }
+
+      scrollFrameId = window.requestAnimationFrame(() => {
+        scrollFrameId = null
+        notifyVisibleLine(view)
+      })
+    }
+
+    view.scrollDOM.addEventListener('scroll', handleScroll, { passive: true })
 
     return () => {
+      view.scrollDOM.removeEventListener('scroll', handleScroll)
+      if (scrollFrameId !== null) {
+        window.cancelAnimationFrame(scrollFrameId)
+      }
       view.destroy()
       editorViewRef.current = null
       setEditorView(null)
@@ -383,8 +449,8 @@ function createMarkdownHighlightStyle(
     },
     {
       tag: t.strong,
-      color: isDark ? '#ffffff' : '#132826',
-      fontWeight: '800',
+      color: isDark ? '#d8e6e1' : '#273938',
+      fontWeight: '400',
     },
     {
       tag: t.strikethrough,

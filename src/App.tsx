@@ -11,8 +11,9 @@
 import type { EditorView } from '@codemirror/view'
 import {
   Bold,
+  ChevronDown,
+  ChevronUp,
   Code2,
-  Copy,
   Download,
   Eye,
   FileCode2,
@@ -63,7 +64,6 @@ import {
 } from './lib/constants'
 import {
   copyTextToClipboard,
-  createHtmlFragment,
   detectImageUrl,
   downloadTextFile,
   isImageFile,
@@ -76,7 +76,6 @@ import {
 } from './lib/file'
 import { saveImageAssetDataUrl } from './lib/image-assets'
 import {
-  getFirstVisibleEditorLine,
   getSearchMatchCount,
   getSelectedEditorText,
   insertCodeBlock,
@@ -104,8 +103,9 @@ import {
 import {
   collectPreviewAnchors,
   findPreviewAnchorForLine,
-  findPreviewAnchorForScrollTop,
+  getPreviewTargetTopForLine,
   getActiveOutlineSlug,
+  scrollPreviewAnchorIntoView,
   scrollPreviewHeadingIntoView,
 } from './lib/preview-sync'
 import { useCodeMirrorEditor } from './hooks/useCodeMirrorEditor'
@@ -155,9 +155,11 @@ function App() {
   const workspaceRef = useRef<HTMLDivElement | null>(null)
   const previewScrollRef = useRef<HTMLDivElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
-  const previewAnchorsRef = useRef<ReturnType<typeof collectPreviewAnchors>>([])
-  const syncSourceRef = useRef<'editor' | 'preview' | 'outline' | null>(null)
+  const syncSourceRef = useRef<'outline' | null>(null)
   const syncTimeoutRef = useRef<number | null>(null)
+  const previewFollowFrameRef = useRef<number | null>(null)
+  const previewFollowTargetRef = useRef<number | null>(null)
+  const previewSyncModeRef = useRef<'selection' | 'scroll'>('selection')
   const dragCounterRef = useRef(0)
   const savePayloadRef = useRef({
     markdown: DEFAULT_MARKDOWN,
@@ -199,7 +201,9 @@ function App() {
   const [isCaseSensitive, setIsCaseSensitive] = useState(false)
   const [isFocusMode, setIsFocusMode] = useState(false)
   const [isDropActive, setIsDropActive] = useState(false)
+  const [isToolbarVisible, setIsToolbarVisible] = useState(false)
   const [activeSourceLine, setActiveSourceLine] = useState(1)
+  const [sourceSelectionRevision, setSourceSelectionRevision] = useState(0)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [isMobileOutlineOpen, setIsMobileOutlineOpen] = useState(false)
 
@@ -254,6 +258,55 @@ function App() {
     setIsSettingsOpen(false)
   }, [])
 
+  const stopPreviewFollowAnimation = useCallback(() => {
+    if (previewFollowFrameRef.current !== null) {
+      window.cancelAnimationFrame(previewFollowFrameRef.current)
+      previewFollowFrameRef.current = null
+    }
+
+    previewFollowTargetRef.current = null
+  }, [])
+
+  const animatePreviewFollowTo = useCallback(
+    (container: HTMLElement, targetTop: number) => {
+      previewFollowTargetRef.current = targetTop
+
+      if (previewFollowFrameRef.current !== null) {
+        return
+      }
+
+      const tick = () => {
+        const nextTarget = previewFollowTargetRef.current
+        if (nextTarget === null) {
+          previewFollowFrameRef.current = null
+          return
+        }
+
+        const delta = nextTarget - container.scrollTop
+        if (Math.abs(delta) < 0.6) {
+          container.scrollTop = nextTarget
+          previewFollowFrameRef.current = null
+          return
+        }
+
+        container.scrollTop += delta * 0.22
+        previewFollowFrameRef.current = window.requestAnimationFrame(tick)
+      }
+
+      previewFollowFrameRef.current = window.requestAnimationFrame(tick)
+    },
+    [],
+  )
+
+  const updateSyncedSourceLine = useCallback((
+    lineNumber: number,
+    mode: 'selection' | 'scroll' = 'selection',
+  ) => {
+    previewSyncModeRef.current = mode
+    setActiveSourceLine(lineNumber)
+    setSourceSelectionRevision((current) => current + 1)
+  }, [])
+
   const saveNow = () => {
     persistCurrentDraft('manual')
   }
@@ -274,6 +327,10 @@ function App() {
     onOpenCommandPalette: openCommandPalette,
     onOpenFindPanel: openFindPanel,
     onSave: saveNow,
+    onActiveLineChange: (lineNumber) =>
+      updateSyncedSourceLine(lineNumber, 'selection'),
+    onVisibleLineChange: (lineNumber) =>
+      updateSyncedSourceLine(lineNumber, 'scroll'),
   })
 
   const { isFullscreen, toggleFullscreen } = useFullscreen(appShellRef)
@@ -314,12 +371,6 @@ function App() {
     preferences.previewWidth,
     resolvedTheme,
   ])
-
-  useEffect(() => {
-    previewAnchorsRef.current = previewScrollRef.current
-      ? collectPreviewAnchors(previewScrollRef.current)
-      : []
-  }, [renderedDocument.html])
 
   useEffect(() => {
     if (!toastMessage) {
@@ -391,81 +442,60 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (!editorView || !previewScrollRef.current) {
-      return
-    }
-
-    const previewNode = previewScrollRef.current
-
-    const handleEditorScroll = () => {
-      if (
-        !isSyncEnabled ||
-        syncSourceRef.current === 'preview' ||
-        syncSourceRef.current === 'outline'
-      ) {
-        return
-      }
-
-      const visibleLine = getFirstVisibleEditorLine(editorView)
-      setActiveSourceLine(visibleLine)
-
-      const anchor = findPreviewAnchorForLine(previewAnchorsRef.current, visibleLine)
-      if (!anchor) {
-        return
-      }
-
-      syncSourceRef.current = 'editor'
-      previewNode.scrollTop = Math.max(anchor.top - 18, 0)
-      releaseSyncGuard()
-    }
-
-    editorView.scrollDOM.addEventListener('scroll', handleEditorScroll, {
-      passive: true,
-    })
-
     return () => {
-      editorView.scrollDOM.removeEventListener('scroll', handleEditorScroll)
+      stopPreviewFollowAnimation()
     }
-  }, [editorView, isSyncEnabled])
+  }, [stopPreviewFollowAnimation])
 
   useEffect(() => {
-    if (!editorView || !previewScrollRef.current) {
+    if (
+      !isSyncEnabled ||
+      syncSourceRef.current === 'outline' ||
+      !previewScrollRef.current
+    ) {
+      stopPreviewFollowAnimation()
       return
     }
 
     const previewNode = previewScrollRef.current
+    const frameId = window.requestAnimationFrame(() => {
+      const previewAnchors = collectPreviewAnchors(previewNode)
+      if (previewSyncModeRef.current === 'scroll') {
+        const targetTop = getPreviewTargetTopForLine(
+          previewNode,
+          previewAnchors,
+          activeSourceLine,
+        )
 
-    const handlePreviewScroll = () => {
-      if (
-        !isSyncEnabled ||
-        syncSourceRef.current === 'editor' ||
-        syncSourceRef.current === 'outline'
-      ) {
+        if (targetTop !== null) {
+          animatePreviewFollowTo(previewNode, targetTop)
+        }
         return
       }
 
-      const anchor = findPreviewAnchorForScrollTop(
-        previewAnchorsRef.current,
-        previewNode.scrollTop,
+      stopPreviewFollowAnimation()
+      const anchor = findPreviewAnchorForLine(
+        previewAnchors,
+        activeSourceLine,
       )
       if (!anchor) {
         return
       }
 
-      setActiveSourceLine(anchor.lineStart)
-      syncSourceRef.current = 'preview'
-      scrollEditorToLine(editorView, anchor.lineStart)
-      releaseSyncGuard()
-    }
-
-    previewNode.addEventListener('scroll', handlePreviewScroll, {
-      passive: true,
+      scrollPreviewAnchorIntoView(previewNode, anchor)
     })
 
     return () => {
-      previewNode.removeEventListener('scroll', handlePreviewScroll)
+      window.cancelAnimationFrame(frameId)
     }
-  }, [editorView, isSyncEnabled])
+  }, [
+    activeSourceLine,
+    animatePreviewFollowTo,
+    isSyncEnabled,
+    renderedDocument.html,
+    sourceSelectionRevision,
+    stopPreviewFollowAnimation,
+  ])
 
   useEffect(() => {
     if (!isDraggingSplitter) {
@@ -584,7 +614,7 @@ function App() {
     {
       id: 'copy-html',
       title: '复制 HTML',
-      description: '复制渲染后的 HTML 片段到剪贴板。',
+      description: '复制与导出一致的完整 HTML 文档到剪贴板。',
       group: '文件',
       keywords: ['copy', 'html', 'clipboard'],
       run: handleCopyHtml,
@@ -700,13 +730,12 @@ function App() {
                 <NotebookPen size={18} />
               </div>
               <div className="brand-copy">
-                <p className="eyebrow">Markdown Workspace</p>
+                <p className="eyebrow brand-eyebrow">
+                  Markdown Workspace | Markdown 编辑工作台
+                </p>
                 <h1 className="brand-title" aria-label="Knight Markdown Studio">
-                  <span>Knight Markdown</span>
-                  <span>Studio</span>
+                  <span>Knight Markdown Studio</span>
                 </h1>
-                <p className="topbar-subtitle">
-                  实时 Markdown 编辑工作台</p>
               </div>
             </div>
 
@@ -746,14 +775,6 @@ function App() {
                 >
                   <FileCode2 size={16} />
                   导出 HTML
-                </button>
-                <button
-                  type="button"
-                  className="ghost-button"
-                  onClick={handleCopyHtml}
-                >
-                  <Copy size={16} />
-                  复制 HTML
                 </button>
                 <button
                   type="button"
@@ -838,20 +859,17 @@ function App() {
               <div>
                 <p className="eyebrow">当前文档</p>
                 <strong>{documentName}.md</strong>
-                <p className="workspace-summary__caption">
-                  {SAVE_STATUS_LABELS[saveStatus]}
-                </p>
+                {saveStatus === 'ready' ? null : (
+                  <p className="workspace-summary__caption">
+                    {SAVE_STATUS_LABELS[saveStatus]}
+                  </p>
+                )}
               </div>
 
               <div className="workspace-stats">
                 <span>{resolvedTheme === 'dark' ? '深色主题' : '浅色主题'}</span>
                 <span>{stats.characters} 字符</span>
                 <span>{stats.lines} 行</span>
-                {preferences.wordGoal ? (
-                  <span>
-                    目标 {stats.characters}/{preferences.wordGoal}
-                  </span>
-                ) : null}
                 {renderedDocument.outline.length > 0 ? (
                   <span>{renderedDocument.outline.length} 个大纲节点</span>
                 ) : null}
@@ -918,19 +936,34 @@ function App() {
                 style={workspaceGridStyle}
               >
                 {showEditorPanel ? (
-                  <section className="panel panel--editor" aria-label="Markdown 编辑区">
-                    <div className="panel-header">
-                      <div>
-                        <p className="panel-kicker">编辑区</p>
-                        <h2>Markdown 源码</h2>
-                      </div>
+                  <section
+                    className={`panel panel--editor ${
+                      isToolbarVisible ? 'panel--editor-toolbar-open' : ''
+                    }`}
+                    aria-label="Markdown 编辑区"
+                  >
+                    <div className="panel-header panel-header--compact panel-header--bare">
                       <span className="panel-meta">
                         {preferences.lineNumbers ? '行号开启' : '无行号'} 路{' '}
                         {preferences.lineWrapping ? '自动换行' : '横向滚动'}
                       </span>
+                      <button
+                        type="button"
+                        className="toolbar-toggle"
+                        aria-expanded={isToolbarVisible}
+                        aria-controls="editor-toolbar"
+                        onClick={() => setIsToolbarVisible((current) => !current)}
+                      >
+                        {isToolbarVisible ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                        {isToolbarVisible ? '隐藏工具栏' : '展开工具栏'}
+                      </button>
                     </div>
 
-                    <Toolbar actions={TOOLBAR_ACTIONS} onAction={runToolbarAction} />
+                    {isToolbarVisible ? (
+                      <div id="editor-toolbar">
+                        <Toolbar actions={TOOLBAR_ACTIONS} onAction={runToolbarAction} />
+                      </div>
+                    ) : null}
 
                     <div className="editor-surface">
                       <div
@@ -958,12 +991,8 @@ function App() {
 
                 {showPreviewPanel ? (
                   <section className="panel panel--preview" aria-label="实时预览区">
-                    <div className="panel-header">
-                      <div>
-                        <p className="panel-kicker">预览区</p>
-                        <h2>实时渲染</h2>
-                      </div>
-                      <span className="preview-badge">GFM + 块级同步</span>
+                    <div className="panel-header panel-header--compact panel-header--bare panel-header--end">
+                      <span className="preview-badge">GFM + 光标跟随</span>
                     </div>
 
                     <div className="preview-surface">
@@ -983,11 +1012,6 @@ function App() {
 
         {!isFocusMode ? (
           <footer className="statusbar">
-            <div className="status-pill">
-              <span className="status-dot" aria-hidden="true" />
-              {SAVE_STATUS_LABELS[saveStatus]}
-            </div>
-
             <div className="status-group">
               <span>{stats.characters} 字符</span>
               <span>{stats.lines} 行</span>
@@ -1265,9 +1289,11 @@ function App() {
 
   async function handleCopyHtml() {
     try {
-      await copyTextToClipboard(createHtmlFragment(markdownText))
+      await copyTextToClipboard(
+        buildStandaloneHtml(markdownText, documentName, preferences),
+      )
       setSaveStatus('copied')
-      showToast('HTML 已复制到剪贴板')
+      showToast('完整 HTML 文档已复制到剪贴板')
     } catch {
       showToast('复制失败，请检查浏览器权限。')
     }
@@ -1373,6 +1399,8 @@ function App() {
     setActiveSourceLine(item.lineStart)
     setIsMobileOutlineOpen(false)
     syncSourceRef.current = 'outline'
+    previewSyncModeRef.current = 'selection'
+    stopPreviewFollowAnimation()
 
     if (editorBridgeRef.current) {
       scrollEditorToLine(editorBridgeRef.current, item.lineStart)
@@ -1386,15 +1414,12 @@ function App() {
 
       if (!didScrollToHeading) {
         const anchor = findPreviewAnchorForLine(
-          previewAnchorsRef.current,
+          collectPreviewAnchors(previewScrollRef.current),
           item.lineStart,
         )
 
         if (anchor) {
-          previewScrollRef.current.scrollTo({
-            top: Math.max(anchor.top - 18, 0),
-            behavior: 'smooth',
-          })
+          scrollPreviewAnchorIntoView(previewScrollRef.current, anchor, 'smooth')
         }
       }
     }
@@ -1521,7 +1546,7 @@ function getWorkspaceGridStyle({
 
 function formatTimestamp(timestamp: number | null) {
   if (!timestamp) {
-    return '灏氭湭淇濆瓨'
+    return '尚未保存'
   }
 
   return new Intl.DateTimeFormat('zh-CN', {

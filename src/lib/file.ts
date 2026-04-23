@@ -1,7 +1,4 @@
-import {
-  buildStandaloneHtml,
-  renderMarkdownDocument,
-} from './markdown'
+import { buildStandaloneHtml } from './markdown'
 import type { EditorPreferences } from '../types/editor'
 
 export async function readTextFile(file: File) {
@@ -174,8 +171,4 @@ export function openPrintWindow(
   document.body.appendChild(iframe)
   iframe.srcdoc = standaloneHtml
   return true
-}
-
-export function createHtmlFragment(markdown: string) {
-  return renderMarkdownDocument(markdown).html
 }

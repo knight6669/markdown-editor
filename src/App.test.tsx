@@ -64,28 +64,55 @@ describe('App outline navigation', () => {
 
     const targetOutlineItem = outlineItems[2]
     const targetHeading = previewHeadings[2]
-    const scrollIntoViewMock = vi.fn()
     const scrollToMock = vi.fn()
-
-    Object.defineProperty(targetHeading, 'scrollIntoView', {
-      configurable: true,
-      value: scrollIntoViewMock,
-    })
 
     Object.defineProperty(previewScroll as HTMLElement, 'scrollTo', {
       configurable: true,
       value: scrollToMock,
     })
 
+    Object.defineProperty(previewScroll as HTMLElement, 'scrollTop', {
+      configurable: true,
+      value: 24,
+      writable: true,
+    })
+
+    Object.defineProperty(previewScroll as HTMLElement, 'getBoundingClientRect', {
+      configurable: true,
+      value: () =>
+        ({
+          top: 100,
+          left: 0,
+          right: 640,
+          bottom: 900,
+          width: 640,
+          height: 800,
+          x: 0,
+          y: 100,
+          toJSON: () => ({}),
+        }) satisfies DOMRect,
+    })
+
+    Object.defineProperty(targetHeading, 'getBoundingClientRect', {
+      configurable: true,
+      value: () =>
+        ({
+          top: 460,
+          left: 0,
+          right: 620,
+          bottom: 520,
+          width: 620,
+          height: 60,
+          x: 0,
+          y: 460,
+          toJSON: () => ({}),
+        }) satisfies DOMRect,
+    })
+
     await user.click(targetOutlineItem)
 
-    expect(scrollIntoViewMock).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start',
-      inline: 'nearest',
-    })
-    expect(scrollToMock).not.toHaveBeenCalledWith({
-      top: expect.any(Number),
+    expect(scrollToMock).toHaveBeenCalledWith({
+      top: 342,
       behavior: 'smooth',
     })
   })

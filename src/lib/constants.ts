@@ -25,7 +25,7 @@ export const DEFAULT_EDITOR_PREFERENCES: EditorPreferences = {
   lineWrapping: true,
   lineNumbers: true,
   mobileViewMode: 'split',
-  wordGoal: 1200,
+  wordGoal: null,
 }
 
 export const PREVIEW_WIDTH_VALUES: Record<PreviewWidth, string> = {

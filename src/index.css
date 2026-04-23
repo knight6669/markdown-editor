@@ -22,6 +22,9 @@
   --editor-active-line: rgba(9, 127, 122, 0.06);
   --editor-gutter: rgba(95, 116, 113, 0.92);
   --danger-text: #9e433f;
+  --scrollbar-thumb: rgba(31, 79, 76, 0.18);
+  --scrollbar-thumb-hover: rgba(13, 127, 122, 0.34);
+  --scrollbar-track: rgba(20, 39, 38, 0.04);
   --preview-content-width: 58rem;
   --editor-font-size: 16px;
   --app-code-font:
@@ -68,6 +71,9 @@
   --editor-active-line: rgba(91, 212, 195, 0.08);
   --editor-gutter: rgba(140, 168, 162, 0.92);
   --danger-text: #ffb2ab;
+  --scrollbar-thumb: rgba(143, 189, 181, 0.18);
+  --scrollbar-thumb-hover: rgba(91, 212, 195, 0.34);
+  --scrollbar-track: rgba(255, 255, 255, 0.03);
 }
 
 *,
@@ -81,10 +87,12 @@ body,
 #root {
   margin: 0;
   min-block-size: 100%;
+  block-size: 100%;
 }
 
 body {
   min-inline-size: 320px;
+  overflow: hidden;
 }
 
 button,

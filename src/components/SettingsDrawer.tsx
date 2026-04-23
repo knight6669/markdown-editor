@@ -58,7 +58,11 @@ export function SettingsDrawer({
                 }`}
                 onClick={() => onChangePreferences({ themeMode: mode })}
               >
-                {mode === 'system' ? `跟随系统（当前 ${resolvedTheme}）` : mode === 'light' ? '浅色' : '深色'}
+                {mode === 'system'
+                  ? `跟随系统（当前 ${resolvedTheme}）`
+                  : mode === 'light'
+                    ? '浅色'
+                    : '深色'}
               </button>
             ))}
           </div>
@@ -139,22 +143,6 @@ export function SettingsDrawer({
           </label>
 
           <label>
-            字数目标（按字符数）
-            <input
-              type="number"
-              min="0"
-              step="100"
-              value={preferences.wordGoal ?? 0}
-              onChange={(event) => {
-                const nextValue = Number(event.target.value)
-                onChangePreferences({
-                  wordGoal: nextValue > 0 ? nextValue : null,
-                })
-              }}
-            />
-          </label>
-
-          <label>
             移动端默认视图
             <select
               value={preferences.mobileViewMode}
@@ -176,7 +164,7 @@ export function SettingsDrawer({
           <div className="settings-section__header">
             <div>
               <h4>草稿历史</h4>
-              <p>保留最近几次自动 / 手动保存的快照，防止误删。</p>
+              <p>保留最近几次自动或手动保存的快照，避免误删内容。</p>
             </div>
             <button type="button" className="ghost-button" onClick={onClearHistory}>
               清空历史
