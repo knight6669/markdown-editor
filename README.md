@@ -40,7 +40,7 @@ Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markd
 
 ### 工作台总览
 
-产品首页采用品牌化头部、左侧结构导航、中间源码编辑、右侧渲染预览的工作台布局，适合长文档持续写作与交付。
+首页采用品牌化头部、左侧结构导航、中间源码编辑、右侧渲染预览的工作台布局，适合长文档持续写作与交付。
 
 ![Knight Markdown Studio light workspace](./.github/assets/workspace-light.png)
 
@@ -54,7 +54,7 @@ Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markd
 
 ### 实时滚动跟踪预览
 
-这次更新后，左侧源码区滚动时，右侧预览会持续跟到对应区块。编辑、浏览和定位不再割裂，尤其适合学习笔记、博客写作、方案和知识库类长文档。
+这次更新后，左侧源码区滚动时，右侧预览会持续跟到对应区块。编辑、浏览和定位不再割裂，尤其适合学习笔记、技术文档、方案和知识库类长文档。
 
 ![Knight Markdown Studio scroll follow preview](./.github/assets/scroll-follow-light.png)
 
@@ -65,8 +65,6 @@ Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markd
 - 支持 fenced code block 与 inline code 的差异化展示
 - 代码高亮风格会与当前主题保持一致
 - 适合技术文档、接口说明、学习笔记和工程博客写作
-
-下面这张展示图只保留代码块本体，并用轻动效强化高亮、聚焦和主题质感。
 
 ![Knight Markdown Studio animated code highlighting preview](./.github/assets/code-highlight-animated.svg)
 
