@@ -731,7 +731,7 @@ function App() {
               </div>
               <div className="brand-copy">
                 <p className="eyebrow brand-eyebrow">
-                  Markdown Workspace | Markdown 编辑工作台
+                  Markdown Workspace | 实时编辑工作台
                 </p>
                 <h1 className="brand-title" aria-label="Knight Markdown Studio">
                   <span>Knight Markdown Studio</span>

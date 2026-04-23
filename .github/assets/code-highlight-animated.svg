@@ -1,0 +1,158 @@
+<svg width="1600" height="920" viewBox="0 0 1600 920" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Knight Markdown Studio code highlighting showcase</title>
+  <desc id="desc">Animated dark code block showing polished syntax highlighting for Markdown technical writing.</desc>
+  <defs>
+    <linearGradient id="pageBg" x1="88" y1="60" x2="1520" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A1417"/>
+      <stop offset="0.52" stop-color="#0F1D21"/>
+      <stop offset="1" stop-color="#12262B"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1230 172) rotate(127.449) scale(548.411 719.793)">
+      <stop stop-color="#34D3C9" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#34D3C9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(284 792) rotate(-10.621) scale(482.265 325.899)">
+      <stop stop-color="#70C8FF" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#70C8FF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panelBg" x1="110" y1="110" x2="1490" y2="810" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0E1A1F"/>
+      <stop offset="1" stop-color="#102328"/>
+    </linearGradient>
+    <linearGradient id="panelStroke" x1="94" y1="94" x2="1506" y2="826" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2B4D55"/>
+      <stop offset="0.4" stop-color="#16353C"/>
+      <stop offset="1" stop-color="#1E424A"/>
+    </linearGradient>
+    <linearGradient id="headerGlow" x1="119" y1="124" x2="1457" y2="182" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#173136"/>
+      <stop offset="1" stop-color="#0F252A"/>
+    </linearGradient>
+    <linearGradient id="lineGlow" x1="186" y1="0" x2="1278" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#173C43" stop-opacity="0"/>
+      <stop offset="0.18" stop-color="#1C5159" stop-opacity="0.88"/>
+      <stop offset="0.5" stop-color="#245E67" stop-opacity="0.98"/>
+      <stop offset="0.82" stop-color="#1C5159" stop-opacity="0.88"/>
+      <stop offset="1" stop-color="#173C43" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="accentText" x1="250" y1="170" x2="892" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9DEEF0"/>
+      <stop offset="0.5" stop-color="#6CE4D7"/>
+      <stop offset="1" stop-color="#7ACBFF"/>
+    </linearGradient>
+    <linearGradient id="badgeFill" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#17383E"/>
+      <stop offset="1" stop-color="#10292F"/>
+    </linearGradient>
+    <filter id="panelShadow" x="43" y="56" width="1514" height="808" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="8"/>
+      <feGaussianBlur stdDeviation="20"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.012 0 0 0 0 0.069 0 0 0 0 0.085 0 0 0 0.36 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+    </filter>
+    <filter id="softBlur" x="-100%" y="-100%" width="300%" height="300%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="920" rx="40" fill="url(#pageBg)"/>
+  <rect width="1600" height="920" rx="40" fill="url(#glowA)"/>
+  <rect width="1600" height="920" rx="40" fill="url(#glowB)"/>
+  <circle cx="1312" cy="148" r="196" fill="#34D3C9" opacity="0.07" filter="url(#softBlur)"/>
+  <circle cx="268" cy="820" r="166" fill="#7ACBFF" opacity="0.05" filter="url(#softBlur)"/>
+
+  <g filter="url(#panelShadow)">
+    <rect x="92" y="104" width="1416" height="712" rx="36" fill="url(#panelBg)"/>
+    <rect x="92.75" y="104.75" width="1414.5" height="710.5" rx="35.25" stroke="url(#panelStroke)" stroke-opacity="0.82" stroke-width="1.5"/>
+    <rect x="110" y="122" width="1380" height="76" rx="24" fill="url(#headerGlow)"/>
+    <rect x="110.5" y="122.5" width="1379" height="75" rx="23.5" stroke="#2A5057" stroke-opacity="0.55"/>
+  </g>
+
+  <circle cx="152" cy="160" r="9" fill="#FF7A6A"/>
+  <circle cx="183" cy="160" r="9" fill="#FFB454"/>
+  <circle cx="214" cy="160" r="9" fill="#3DD598"/>
+
+  <rect x="1260" y="138" width="178" height="42" rx="21" fill="url(#badgeFill)" stroke="#25515A" stroke-opacity="0.8"/>
+  <text x="1289" y="164" fill="#9DEEF0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="0.02em">GFM + 代码高亮</text>
+
+  <text x="250" y="150" fill="#6E8A91" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="0.22em">CODE BLOCK</text>
+  <text x="250" y="184" fill="url(#accentText)" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="800">High-fidelity syntax highlighting</text>
+
+  <rect x="146" y="236" width="88" height="42" rx="21" fill="url(#badgeFill)" stroke="#2C5962" stroke-opacity="0.8"/>
+  <text x="177" y="262" fill="#E6F3F1" font-family="JetBrains Mono, Consolas, monospace" font-size="18" font-weight="700">tsx</text>
+
+  <text x="146" y="333" fill="#60787E" font-family="JetBrains Mono, Consolas, monospace" font-size="21" font-weight="600">01</text>
+  <text x="146" y="401" fill="#60787E" font-family="JetBrains Mono, Consolas, monospace" font-size="21" font-weight="600">02</text>
+  <text x="146" y="469" fill="#60787E" font-family="JetBrains Mono, Consolas, monospace" font-size="21" font-weight="600">03</text>
+  <text x="146" y="537" fill="#60787E" font-family="JetBrains Mono, Consolas, monospace" font-size="21" font-weight="600">04</text>
+  <text x="146" y="605" fill="#60787E" font-family="JetBrains Mono, Consolas, monospace" font-size="21" font-weight="600">05</text>
+  <text x="146" y="673" fill="#60787E" font-family="JetBrains Mono, Consolas, monospace" font-size="21" font-weight="600">06</text>
+  <text x="146" y="741" fill="#60787E" font-family="JetBrains Mono, Consolas, monospace" font-size="21" font-weight="600">07</text>
+
+  <rect x="214" y="298" width="1224" height="46" rx="18" fill="url(#lineGlow)" opacity="0.72">
+    <animate attributeName="y" values="298;366;434;502;570;502;434;366;298" dur="10s" repeatCount="indefinite"/>
+  </rect>
+
+  <g font-family="JetBrains Mono, Consolas, monospace" font-size="31" font-weight="500">
+    <text x="238" y="333" fill="#71E0D2">const</text>
+    <text x="355" y="333" fill="#EAF7F6"> renderPreview </text>
+    <text x="644" y="333" fill="#93AAB0">=</text>
+    <text x="687" y="333" fill="#EAF7F6"> (</text>
+    <text x="726" y="333" fill="#F3A96B">markdown</text>
+    <text x="900" y="333" fill="#93AAB0">:</text>
+    <text x="928" y="333" fill="#C29BFF"> string</text>
+    <text x="1068" y="333" fill="#EAF7F6"> ) </text>
+    <text x="1146" y="333" fill="#71E0D2">=&gt;</text>
+    <text x="1211" y="333" fill="#EAF7F6"> {</text>
+
+    <text x="292" y="401" fill="#71E0D2">const</text>
+    <text x="407" y="401" fill="#EAF7F6"> html </text>
+    <text x="518" y="401" fill="#93AAB0">=</text>
+    <text x="560" y="401" fill="#F3A96B">md</text>
+    <text x="612" y="401" fill="#EAF7F6">.</text>
+    <text x="631" y="401" fill="#7ACBFF">render</text>
+    <text x="752" y="401" fill="#EAF7F6">(markdown)</text>
+
+    <text x="292" y="469" fill="#71E0D2">return</text>
+    <text x="426" y="469" fill="#7ACBFF">sanitize</text>
+    <text x="565" y="469" fill="#EAF7F6">(html, { </text>
+    <text x="784" y="469" fill="#F3A96B">USE_PROFILES</text>
+    <text x="1001" y="469" fill="#93AAB0">:</text>
+    <text x="1038" y="469" fill="#EAF7F6"> { </text>
+    <text x="1093" y="469" fill="#C29BFF">html</text>
+    <text x="1167" y="469" fill="#EAF7F6">: </text>
+    <text x="1207" y="469" fill="#FFD57A">true</text>
+    <text x="1270" y="469" fill="#EAF7F6"> } })</text>
+
+    <text x="238" y="537" fill="#EAF7F6">}</text>
+
+    <text x="238" y="605" fill="#5B7075">// Smooth preview tracking while the editor scrolls.</text>
+
+    <text x="238" y="673" fill="#71E0D2">requestAnimationFrame</text>
+    <text x="549" y="673" fill="#EAF7F6">(() </text>
+    <text x="626" y="673" fill="#71E0D2">=&gt;</text>
+    <text x="689" y="673" fill="#EAF7F6"> syncPreview(</text>
+    <text x="905" y="673" fill="#F3A96B">editorLine</text>
+    <text x="1067" y="673" fill="#EAF7F6">, </text>
+    <text x="1107" y="673" fill="#F3A96B">anchorMap</text>
+    <text x="1261" y="673" fill="#EAF7F6">))</text>
+
+    <text x="238" y="741" fill="#7ACBFF">export</text>
+    <text x="353" y="741" fill="#71E0D2"> default</text>
+    <text x="499" y="741" fill="#EAF7F6"> renderPreview</text>
+  </g>
+
+  <rect x="919" y="642" width="3" height="37" rx="1.5" fill="#9DEEF0">
+    <animate attributeName="opacity" values="1;0.2;1" dur="1.2s" repeatCount="indefinite"/>
+  </rect>
+
+  <rect x="214" y="772" width="1226" height="1.5" fill="#1F3C42"/>
+  <text x="238" y="805" fill="#6D858B" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="600">Theme-aware code styling · Markdown technical writing · Preview-ready</text>
+
+  <rect x="-340" y="250" width="360" height="560" fill="#9DEEF0" opacity="0.05" filter="url(#softBlur)">
+    <animate attributeName="x" values="-340;1600" dur="10s" repeatCount="indefinite"/>
+  </rect>
+</svg>

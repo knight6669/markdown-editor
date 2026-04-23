@@ -21,7 +21,7 @@
 ## 项目简介
 
 Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markdown 交付的单页面工作台。
-它把源码编辑、实时预览、结构导航、历史快照、主题切换和导出交付放进了同一个界面里，让 Markdown 不只是“能写”，而是更适合长期使用。
+它把源码编辑、实时预览、结构导航、历史快照、主题切换和导出交付放进了同一个界面里，让 Markdown 不只是“能写”，而是更适合长期编辑使用。
 
 适合这些场景：
 
@@ -33,7 +33,7 @@ Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markd
 
 - 实时滚动跟踪预览：左侧源码区滚动时，右侧预览会实时跟到对应内容块
 - 光标 / 点击 / 大纲联动：左侧点击、光标定位和大纲跳转都会驱动右侧预览定位
-- 独立双栏滚动：右侧预览跟随左侧，但不会反向拖动编辑区，长文档编辑更稳定
+- 独立双栏滚动：右侧预览实时跟随左侧，长文档编辑更稳定
 - 导出 HTML 升级：导出的独立 HTML 现在自带大纲视图、章节跳转和更完整的阅读样式
 
 ## 界面预览
@@ -54,7 +54,7 @@ Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markd
 
 ### 实时滚动跟踪预览
 
-这次更新后，左侧源码区滚动时，右侧预览会持续跟到对应区块。编辑、浏览和定位不再割裂，尤其适合周报、方案和知识库类长文档。
+这次更新后，左侧源码区滚动时，右侧预览会持续跟到对应区块。编辑、浏览和定位不再割裂，尤其适合学习笔记、博客写作、方案和知识库类长文档。
 
 ![Knight Markdown Studio scroll follow preview](./.github/assets/scroll-follow-light.png)
 
@@ -64,9 +64,11 @@ Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markd
 
 - 支持 fenced code block 与 inline code 的差异化展示
 - 代码高亮风格会与当前主题保持一致
-- 更适合技术文档、接口说明、学习笔记和工程博客写作
+- 适合技术文档、接口说明、学习笔记和工程博客写作
 
-![Knight Markdown Studio code highlighting preview](./.github/assets/code-highlight-dark.png)
+下面这张展示图只保留代码块本体，并用轻动效强化高亮、聚焦和主题质感。
+
+![Knight Markdown Studio animated code highlighting preview](./.github/assets/code-highlight-animated.svg)
 
 ## 核心能力
 
@@ -156,4 +158,8 @@ public/          静态资源
 
 ## License
 
-本项目基于 [MIT License](./LICENSE) 开源。
+本项目基于 [MIT License](./LICENSE) 开源。 | 随便用哈哈哈
+
+##关于作者
+
+Knight | 贺 |  持续探索vibe-condig
