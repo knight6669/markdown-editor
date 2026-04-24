@@ -56,7 +56,7 @@ Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markd
 
 左侧源码区滚动时，右侧预览会持续跟到对应区块。编辑、浏览和定位不再割裂，尤其适合学习笔记、技术文档、方案和知识库类长文档。
 
-![Knight Markdown Studio scroll follow preview](./.github/assets/scroll-follow-light.png)
+![Knight Markdown Studio scroll follow preview](./.github/assets/scroll-follow-animated.gif)
 
 ### 代码块高亮
 
