@@ -160,6 +160,7 @@ function App() {
   const previewFollowFrameRef = useRef<number | null>(null)
   const previewFollowTargetRef = useRef<number | null>(null)
   const previewSyncModeRef = useRef<'selection' | 'scroll'>('selection')
+  const isPreviewManualScrollRef = useRef(false)
   const dragCounterRef = useRef(0)
   const savePayloadRef = useRef({
     markdown: DEFAULT_MARKDOWN,
@@ -267,6 +268,15 @@ function App() {
     previewFollowTargetRef.current = null
   }, [])
 
+  const pausePreviewSync = useCallback(() => {
+    isPreviewManualScrollRef.current = true
+    stopPreviewFollowAnimation()
+  }, [stopPreviewFollowAnimation])
+
+  const resumePreviewSync = useCallback(() => {
+    isPreviewManualScrollRef.current = false
+  }, [])
+
   const animatePreviewFollowTo = useCallback(
     (container: HTMLElement, targetTop: number) => {
       previewFollowTargetRef.current = targetTop
@@ -302,10 +312,11 @@ function App() {
     lineNumber: number,
     mode: 'selection' | 'scroll' = 'selection',
   ) => {
+    resumePreviewSync()
     previewSyncModeRef.current = mode
     setActiveSourceLine(lineNumber)
     setSourceSelectionRevision((current) => current + 1)
-  }, [])
+  }, [resumePreviewSync])
 
   const saveNow = () => {
     persistCurrentDraft('manual')
@@ -448,10 +459,38 @@ function App() {
   }, [stopPreviewFollowAnimation])
 
   useEffect(() => {
+    const previewNode = previewScrollRef.current
+    if (!previewNode) {
+      return
+    }
+
+    const handleManualPreviewInteraction = () => {
+      pausePreviewSync()
+    }
+
+    previewNode.addEventListener('wheel', handleManualPreviewInteraction, {
+      passive: true,
+    })
+    previewNode.addEventListener('touchstart', handleManualPreviewInteraction, {
+      passive: true,
+    })
+    previewNode.addEventListener('pointerdown', handleManualPreviewInteraction, {
+      passive: true,
+    })
+
+    return () => {
+      previewNode.removeEventListener('wheel', handleManualPreviewInteraction)
+      previewNode.removeEventListener('touchstart', handleManualPreviewInteraction)
+      previewNode.removeEventListener('pointerdown', handleManualPreviewInteraction)
+    }
+  }, [pausePreviewSync, showPreviewPanel])
+
+  useEffect(() => {
     if (
       !isSyncEnabled ||
       syncSourceRef.current === 'outline' ||
-      !previewScrollRef.current
+      !previewScrollRef.current ||
+      isPreviewManualScrollRef.current
     ) {
       stopPreviewFollowAnimation()
       return
@@ -1396,6 +1435,7 @@ function App() {
   }
 
   function handleSelectOutlineItem(item: MarkdownOutlineItem) {
+    resumePreviewSync()
     setActiveSourceLine(item.lineStart)
     setIsMobileOutlineOpen(false)
     syncSourceRef.current = 'outline'
