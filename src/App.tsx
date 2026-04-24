@@ -222,12 +222,12 @@ function App() {
     activeSourceLine,
   )
 
-  const mobileViewMode = isMobile ? preferences.mobileViewMode : 'split'
-  const showEditorPanel = !isMobile || mobileViewMode !== 'preview'
-  const showPreviewPanel = !isMobile || mobileViewMode !== 'editor'
-  const showSplitter =
-    (!isMobile && showEditorPanel && showPreviewPanel) ||
-    (isMobile && mobileViewMode === 'split')
+  const workspaceViewMode = isMobile
+    ? preferences.mobileViewMode
+    : preferences.desktopViewMode
+  const showEditorPanel = workspaceViewMode !== 'preview'
+  const showPreviewPanel = workspaceViewMode !== 'editor'
+  const showSplitter = workspaceViewMode === 'split'
   const isSyncEnabled = showEditorPanel && showPreviewPanel
 
   const openLinkDialog = useCallback(() => {
@@ -306,6 +306,19 @@ function App() {
       previewFollowFrameRef.current = window.requestAnimationFrame(tick)
     },
     [],
+  )
+
+  const setWorkspaceViewMode = useCallback(
+    (mode: 'editor' | 'preview' | 'split') => {
+      updatePreferences(
+        isMobile ? { mobileViewMode: mode } : { desktopViewMode: mode },
+      )
+      setIsDraggingSplitter(false)
+      if (mode !== 'split') {
+        stopPreviewFollowAnimation()
+      }
+    },
+    [isMobile, stopPreviewFollowAnimation, updatePreferences],
   )
 
   const updateSyncedSourceLine = useCallback((
@@ -905,47 +918,51 @@ function App() {
                 )}
               </div>
 
-              <div className="workspace-stats">
-                <span>{resolvedTheme === 'dark' ? '深色主题' : '浅色主题'}</span>
-                <span>{stats.characters} 字符</span>
-                <span>{stats.lines} 行</span>
-                {renderedDocument.outline.length > 0 ? (
-                  <span>{renderedDocument.outline.length} 个大纲节点</span>
-                ) : null}
-              </div>
-            </div>
+              <div className="workspace-summary__meta">
+                <div className="workspace-stats">
+                  <span>{resolvedTheme === 'dark' ? '深色主题' : '浅色主题'}</span>
+                  <span>{stats.characters} 字符</span>
+                  <span>{stats.lines} 行</span>
+                  {renderedDocument.outline.length > 0 ? (
+                    <span>{renderedDocument.outline.length} 个大纲节点</span>
+                  ) : null}
+                </div>
 
-            <div className="workspace-body">
-              {isMobile ? (
-                <div className="mobile-toolbar">
-                  <div className="segmented-control">
+                <div className="workspace-viewbar workspace-viewbar--summary">
+                  <div
+                    className="segmented-control segmented-control--compact"
+                    role="group"
+                    aria-label="工作区视图切换"
+                  >
                     {(['editor', 'preview', 'split'] as const).map((mode) => (
                       <button
                         key={mode}
                         type="button"
-                        className={`segment-button ${
-                          preferences.mobileViewMode === mode
-                            ? 'segment-button--active'
-                            : ''
+                        className={`segment-button segment-button--compact ${
+                          workspaceViewMode === mode ? 'segment-button--active' : ''
                         }`}
-                        onClick={() => updatePreferences({ mobileViewMode: mode })}
+                        onClick={() => setWorkspaceViewMode(mode)}
                       >
                         {mode === 'editor' ? '编辑' : mode === 'preview' ? '预览' : '分屏'}
                       </button>
                     ))}
                   </div>
 
-                  <button
-                    type="button"
-                    className="ghost-button"
-                    onClick={() => setIsMobileOutlineOpen(true)}
-                  >
-                    <Eye size={16} />
-                    大纲
-                  </button>
+                  {isMobile ? (
+                    <button
+                      type="button"
+                      className="ghost-button ghost-button--compact"
+                      onClick={() => setIsMobileOutlineOpen(true)}
+                    >
+                      <Eye size={14} />
+                      大纲
+                    </button>
+                  ) : null}
                 </div>
-              ) : null}
+              </div>
+            </div>
 
+            <div className="workspace-body">
               {isFindPanelOpen ? (
                 <FindReplacePanel
                   isOpen={isFindPanelOpen}

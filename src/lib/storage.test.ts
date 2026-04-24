@@ -47,11 +47,13 @@ describe('draft storage', () => {
   it('reads and writes editor preferences', () => {
     writeEditorPreferences({
       ...readEditorPreferences(),
+      desktopViewMode: 'editor',
       mobileViewMode: 'preview',
       lineNumbers: false,
     })
 
     const preferences = readEditorPreferences()
+    expect(preferences.desktopViewMode).toBe('editor')
     expect(preferences.mobileViewMode).toBe('preview')
     expect(preferences.lineNumbers).toBe(false)
   })

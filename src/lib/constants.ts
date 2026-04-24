@@ -24,7 +24,8 @@ export const DEFAULT_EDITOR_PREFERENCES: EditorPreferences = {
   codeFont: 'ibm-plex',
   lineWrapping: true,
   lineNumbers: true,
-  mobileViewMode: 'split',
+  desktopViewMode: 'split',
+  mobileViewMode: 'editor',
   wordGoal: null,
 }
 

@@ -9,7 +9,7 @@ import {
 } from '@codemirror/state'
 import { EditorView, keymap, placeholder, type KeyBinding } from '@codemirror/view'
 import { tags as t } from '@lezer/highlight'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   detectImageUrl,
   isImageFile,
@@ -58,17 +58,19 @@ export function useCodeMirrorEditor({
   onActiveLineChange,
   onVisibleLineChange,
 }: UseCodeMirrorEditorArgs) {
-  const hostRef = useRef<HTMLDivElement | null>(null)
+  const [hostElement, setHostElement] = useState<HTMLDivElement | null>(null)
   const editorViewRef = useRef<EditorView | null>(null)
   const [editorView, setEditorView] = useState<EditorView | null>(null)
-  const initialMarkdownRef = useRef(markdownText)
-  const initialLineWrappingRef = useRef(lineWrapping)
-  const initialThemeRef = useRef(resolvedTheme)
   const isApplyingExternalChangeRef = useRef(false)
   const lastActiveLineRef = useRef<number | null>(null)
   const lastVisibleLineRef = useRef<number | null>(null)
+  const savedSelectionRef = useRef<{ anchor: number; head: number } | null>(null)
+  const savedScrollTopRef = useRef(0)
   const lineWrappingCompartmentRef = useRef(new Compartment())
   const themeCompartmentRef = useRef(new Compartment())
+  const latestMarkdownRef = useRef(markdownText)
+  const latestLineWrappingRef = useRef(lineWrapping)
+  const latestThemeRef = useRef(resolvedTheme)
   const callbacksRef = useRef({
     onChange,
     onFocus,
@@ -79,6 +81,10 @@ export function useCodeMirrorEditor({
     onActiveLineChange,
     onVisibleLineChange,
   })
+
+  const hostRef = useCallback((node: HTMLDivElement | null) => {
+    setHostElement(node)
+  }, [])
 
   useEffect(() => {
     callbacksRef.current = {
@@ -103,7 +109,19 @@ export function useCodeMirrorEditor({
   ])
 
   useEffect(() => {
-    if (!hostRef.current) {
+    latestMarkdownRef.current = markdownText
+  }, [markdownText])
+
+  useEffect(() => {
+    latestLineWrappingRef.current = lineWrapping
+  }, [lineWrapping])
+
+  useEffect(() => {
+    latestThemeRef.current = resolvedTheme
+  }, [resolvedTheme])
+
+  useEffect(() => {
+    if (!hostElement) {
       return
     }
 
@@ -128,17 +146,25 @@ export function useCodeMirrorEditor({
       callbacksRef.current.onVisibleLineChange?.(nextLine)
     }
 
+    const initialSelection = savedSelectionRef.current
+      ? EditorSelection.range(
+          Math.min(savedSelectionRef.current.anchor, latestMarkdownRef.current.length),
+          Math.min(savedSelectionRef.current.head, latestMarkdownRef.current.length),
+        )
+      : undefined
+
     const view = new EditorView({
       state: EditorState.create({
-        doc: initialMarkdownRef.current,
+        doc: latestMarkdownRef.current,
+        selection: initialSelection,
         extensions: [
           basicSetup,
           markdown(),
           themeCompartmentRef.current.of(
-            createEditorAppearance(initialThemeRef.current),
+            createEditorAppearance(latestThemeRef.current),
           ),
           lineWrappingCompartmentRef.current.of(
-            initialLineWrappingRef.current ? EditorView.lineWrapping : [],
+            latestLineWrappingRef.current ? EditorView.lineWrapping : [],
           ),
           placeholder('在这里写 Markdown，右侧会实时渲染预览。'),
           EditorState.tabSize.of(2),
@@ -238,11 +264,16 @@ export function useCodeMirrorEditor({
           ]),
         ],
       }),
-      parent: hostRef.current,
+      parent: hostElement,
     })
 
     editorViewRef.current = view
     setEditorView(view)
+    if (savedScrollTopRef.current > 0) {
+      window.requestAnimationFrame(() => {
+        view.scrollDOM.scrollTop = savedScrollTopRef.current
+      })
+    }
     const initialLine = getCurrentEditorLine(view)
     lastActiveLineRef.current = initialLine
     callbacksRef.current.onActiveLineChange?.(initialLine)
@@ -267,11 +298,16 @@ export function useCodeMirrorEditor({
       if (scrollFrameId !== null) {
         window.cancelAnimationFrame(scrollFrameId)
       }
+      savedSelectionRef.current = {
+        anchor: view.state.selection.main.anchor,
+        head: view.state.selection.main.head,
+      }
+      savedScrollTopRef.current = view.scrollDOM.scrollTop
       view.destroy()
       editorViewRef.current = null
       setEditorView(null)
     }
-  }, [])
+  }, [hostElement])
 
   useEffect(() => {
     const view = editorViewRef.current

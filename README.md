@@ -3,11 +3,11 @@
 </div>
 
 <div align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Manrope&weight=700&size=20&duration=3000&pause=900&color=0F766E&center=true&vCenter=true&width=920&lines=%E5%AE%9E%E6%97%B6+Markdown+%E5%B7%A5%E4%BD%9C%E5%8F%B0;%E6%BA%90%E7%A0%81%E7%BC%96%E8%BE%91%E3%80%81%E9%A2%84%E8%A7%88%E3%80%81%E5%A4%A7%E7%BA%B2%E4%B8%8E%E5%AF%BC%E5%87%BA%E5%90%8C%E5%B1%8F%E5%8D%8F%E4%BD%9C;%E5%AE%9E%E6%97%B6%E6%BB%9A%E5%8A%A8%E8%B7%9F%E8%B8%AA%E9%A2%84%E8%A7%88%E5%B7%B2%E6%94%AF%E6%8C%81" alt="Animated product summary" />
+  <img src="https://readme-typing-svg.demolab.com?font=Manrope&weight=700&size=20&duration=3000&pause=900&color=0F766E&center=true&vCenter=true&width=920&lines=%E5%AE%9E%E6%97%B6+Markdown+%E5%B7%A5%E4%BD%9C%E5%8F%B0;%E6%BA%90%E7%A0%81%E7%BC%96%E8%BE%91%E3%80%81%E9%A2%84%E8%A7%88%E3%80%81%E5%A4%A7%E7%BA%B2%E4%B8%8E%E5%AF%BC%E5%87%BA%E5%90%8C%E5%B1%8F%E5%8D%8F%E4%BD%9C;%E6%A1%8C%E9%9D%A2%E7%AB%AF%E4%B8%8E%E7%A7%BB%E5%8A%A8%E7%AB%AF%E5%9D%87%E6%94%AF%E6%8C%81%E4%B8%89%E6%80%81%E5%88%87%E6%8D%A2" alt="Animated product summary" />
 </div>
 
 <p align="center">
-  一个完整的 Markdown 工作台：左侧专注源码写作，右侧即时预览排版结果，同时提供大纲导航、历史快照、导出能力、主题切换等能力。
+  一个完整的 Markdown 工作台：左侧专注源码写作，右侧即时预览排版结果，同时提供大纲导航、历史快照、导出能力、主题切换与桌面端 / 移动端三态切换等能力。
 </p>
 
 <p align="center">
@@ -20,21 +20,23 @@
 
 ## 项目简介
 
-Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markdown 交付的单页面工作台。
+Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markdown 交付的单页面工作台。  
 它把源码编辑、实时预览、结构导航、历史快照、主题切换和导出交付放进了同一个界面里，让 Markdown 不只是“能写”，而是更适合长期编辑使用。
 
 适合这些场景：
 
 - 技术文档、API 说明与产品方案
-- 学习笔记、知识库草稿与博客写作
+- 学习笔记、知识库草稿与长文档整理
 - 需要一边写源码、一边看排版结果的 Markdown 工作流
 
 ## 最近更新
 
-- 实时滚动跟踪预览：左侧源码区滚动时，右侧预览会实时跟到对应内容块
+- 实时滚动跟踪预览：左侧源码区滚动时，右侧预览会持续跟到对应内容块
 - 光标 / 点击 / 大纲联动：左侧点击、光标定位和大纲跳转都会驱动右侧预览定位
-- 独立双栏滚动：右侧预览实时跟随左侧，长文档编辑更稳定
-- 导出 HTML 升级：导出的独立 HTML 现在自带大纲视图、章节跳转和更完整的阅读样式
+- 桌面端三态切换：PC 端现已支持编辑 / 预览 / 分屏三态，默认分屏
+- 移动端三态切换：移动端支持编辑 / 预览 / 分屏切换，默认进入编辑视图
+- 切换稳定性修复：从预览切回编辑或分屏时，编辑器会稳定恢复挂载并保留上一次的选区与滚动位置
+- 导出 HTML 升级：导出的独立 HTML 自带大纲视图、章节跳转与更完整的阅读样式
 
 ## 界面预览
 
@@ -60,11 +62,11 @@ Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markd
 
 ### 代码块高亮
 
-代码块高亮不仅是“把代码染色”，更重要的是让技术内容在预览区里保持清晰、稳定、可读：
+代码块高亮不只是“把代码染色”，更重要的是让技术内容在预览区里保持清晰、稳定、可读：
 
 - 支持 fenced code block 与 inline code 的差异化展示
 - 代码高亮风格会与当前主题保持一致
-- 适合技术文档、接口说明、学习笔记和工程博客写作
+- 更适合技术文档、接口说明、学习笔记和工程内容写作
 
 ![Knight Markdown Studio animated code highlighting preview](./.github/assets/code-highlight-animated.svg)
 
@@ -73,12 +75,12 @@ Knight Markdown Studio 是一个面向持续写作、技术文档整理和 Markd
 | 模块 | 能力 |
 | --- | --- |
 | 编辑 | Markdown 工具栏、快捷键、自动换行、行号开关、查找替换 |
-| 导航 | 文档大纲、标题跳转、左侧滚动 / 光标 / 点击驱动右侧预览跟踪 |
+| 导航 | 文档大纲、标题跳转、左侧滚动 / 光标 / 点击驱动右侧预览跟随 |
 | 持久化 | 自动保存、草稿恢复、历史快照、重置示例 |
 | 导出 | Markdown、独立 HTML、复制 HTML、PDF / 打印 |
 | 个性化 | `light` / `dark` / `system`、字号、预览宽度、代码字体 |
 | 媒体 | `.md` 导入、图片 URL、图片文件粘贴与拖拽插入 |
-| 体验 | 移动端编辑 / 预览 / 分屏三态、命令面板、专注模式、全屏 |
+| 体验 | 桌面端 / 移动端均支持编辑 / 预览 / 分屏三态、命令面板、专注模式、全屏 |
 
 ## 技术栈
 
@@ -156,8 +158,8 @@ public/          静态资源
 
 ## License
 
-本项目基于 [MIT License](./LICENSE) 开源。 | 随便用哈哈哈
+本项目基于 [MIT License](./LICENSE) 开源。
 
 ## 关于作者
 
-Knight | 贺 |  持续探索vibe-condig
+Knight | 贺 | 持续探索 vibe-coding

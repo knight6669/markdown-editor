@@ -59,7 +59,7 @@ export function SettingsDrawer({
                 onClick={() => onChangePreferences({ themeMode: mode })}
               >
                 {mode === 'system'
-                  ? `跟随系统（当前 ${resolvedTheme}）`
+                  ? `跟随系统（当前${resolvedTheme}）`
                   : mode === 'light'
                     ? '浅色'
                     : '深色'}
@@ -96,7 +96,7 @@ export function SettingsDrawer({
             >
               <option value="narrow">紧凑阅读</option>
               <option value="comfortable">标准宽度</option>
-              <option value="wide">宽幅文档</option>
+              <option value="wide">宽屏文档</option>
               <option value="fluid">铺满容器</option>
             </select>
           </label>
@@ -140,6 +140,23 @@ export function SettingsDrawer({
                 onChangePreferences({ lineNumbers: !preferences.lineNumbers })
               }
             />
+          </label>
+
+          <label>
+            桌面端默认视图
+            <select
+              value={preferences.desktopViewMode}
+              onChange={(event) =>
+                onChangePreferences({
+                  desktopViewMode:
+                    event.target.value as EditorPreferences['desktopViewMode'],
+                })
+              }
+            >
+              <option value="split">分屏</option>
+              <option value="editor">编辑</option>
+              <option value="preview">预览</option>
+            </select>
           </label>
 
           <label>

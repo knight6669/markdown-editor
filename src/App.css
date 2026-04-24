@@ -248,13 +248,14 @@
 .hint-strip,
 .header-actions,
 .workspace-summary,
+.workspace-summary__meta,
 .workspace-stats,
 .panel-header,
 .statusbar,
 .status-group,
 .dialog-actions,
 .find-panel__actions,
-.mobile-toolbar,
+.workspace-viewbar,
 .settings-section__header {
   display: flex;
   flex-wrap: wrap;
@@ -466,11 +467,20 @@ select:focus-visible {
   border-bottom: 1px solid var(--border-color);
 }
 
+.workspace-summary__meta {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+}
+
 .workspace-summary strong {
   display: inline-block;
   margin-top: 0.16rem;
   color: var(--headline-text);
   font-size: 1rem;
+}
+
+.workspace-stats {
+  justify-content: flex-end;
 }
 
 .workspace-body {
@@ -1140,9 +1150,31 @@ select:focus-visible {
   color: var(--muted-text);
 }
 
-.mobile-toolbar {
-  justify-content: space-between;
-  padding: 0.9rem 1rem 0;
+.workspace-viewbar .segmented-control {
+  flex-wrap: nowrap;
+}
+
+.workspace-viewbar--summary {
+  justify-content: flex-end;
+  gap: 0.42rem;
+}
+
+.segmented-control--compact {
+  gap: 0.32rem;
+}
+
+.segment-button--compact,
+.ghost-button--compact {
+  min-block-size: 1.95rem;
+  padding: 0.28rem 0.64rem;
+  gap: 0.3rem;
+  font-size: 0.76rem;
+  line-height: 1;
+}
+
+.ghost-button--compact svg {
+  inline-size: 0.82rem;
+  block-size: 0.82rem;
 }
 
 .statusbar {
@@ -1285,6 +1317,10 @@ input[type='checkbox'] {
   .statusbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .workspace-summary__meta {
+    justify-content: space-between;
   }
 
   .header-meta,

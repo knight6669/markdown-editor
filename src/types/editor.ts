@@ -2,7 +2,7 @@ export type ThemeMode = 'system' | 'light' | 'dark'
 export type ResolvedTheme = 'light' | 'dark'
 export type PreviewWidth = 'narrow' | 'comfortable' | 'wide' | 'fluid'
 export type CodeFont = 'ibm-plex' | 'jetbrains' | 'sfmono'
-export type MobileViewMode = 'split' | 'editor' | 'preview'
+export type WorkspaceViewMode = 'split' | 'editor' | 'preview'
 
 export type SaveStatus =
   | 'ready'
@@ -43,7 +43,8 @@ export type EditorPreferences = {
   codeFont: CodeFont
   lineWrapping: boolean
   lineNumbers: boolean
-  mobileViewMode: MobileViewMode
+  desktopViewMode: WorkspaceViewMode
+  mobileViewMode: WorkspaceViewMode
   wordGoal: number | null
 }
 
