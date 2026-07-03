@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify'
 import MarkdownIt from 'markdown-it'
-import type Token from 'markdown-it/lib/token.mjs'
+import Token from 'markdown-it/lib/token.mjs'
 import type { RenderRule } from 'markdown-it/lib/renderer.mjs'
 import markdownItFootnote from 'markdown-it-footnote'
 import markdownItTaskLists from 'markdown-it-task-lists'
@@ -162,6 +162,14 @@ export const PREVIEW_CONTENT_CSS = String.raw`
 .standalone-preview table,
 .standalone-preview pre {
   margin: 0 0 1.05rem;
+}
+
+.markdown-preview strong,
+.markdown-preview b,
+.standalone-preview strong,
+.standalone-preview b {
+  color: var(--preview-heading);
+  font-weight: 780;
 }
 
 .markdown-preview ul,
@@ -487,6 +495,7 @@ export function renderMarkdownDocument(markdownSource: string): RenderedMarkdown
   const normalizedMarkdown = resolveMarkdownImageAssets(markdownSource)
   const env = {}
   const tokens = markdownRenderer.parse(normalizedMarkdown, env)
+  patchLooseStrongSyntax(tokens)
   const outline = annotateTokens(tokens)
   const html = markdownRenderer.renderer.render(
     tokens,
@@ -1240,7 +1249,8 @@ function annotateTokens(tokens: Token[]) {
 
     if (token.type === 'heading_open' && token.map) {
       const level = Number(token.tag.slice(1))
-      const headingText = tokens[index + 1]?.content.trim() || `section-${index}`
+      const headingText =
+        extractInlineText(tokens[index + 1])?.trim() || `section-${index}`
       const slug = createUniqueSlug(headingText, slugCounts)
       token.attrSet('id', slug)
       token.attrSet('data-heading-slug', slug)
@@ -1258,6 +1268,76 @@ function annotateTokens(tokens: Token[]) {
   }
 
   return outline
+}
+
+function patchLooseStrongSyntax(tokens: Token[]) {
+  for (const token of tokens) {
+    if (token.type !== 'inline' || !token.children?.length) {
+      continue
+    }
+
+    token.children = token.children.flatMap((child) => {
+      if (child.type !== 'text' || !child.content.includes('**')) {
+        return [child]
+      }
+
+      return convertLooseStrongText(child)
+    })
+  }
+}
+
+function convertLooseStrongText(token: Token) {
+  const pattern = /\*\*([^*\n][^*]*?)\*\*/gu
+  const fragments: Token[] = []
+  let cursor = 0
+  let match: RegExpExecArray | null = null
+  let matched = false
+
+  while ((match = pattern.exec(token.content)) !== null) {
+    matched = true
+    const start = match.index
+    const end = start + match[0].length
+
+    if (start > cursor) {
+      fragments.push(createTextToken(token.content.slice(cursor, start)))
+    }
+
+    fragments.push(new Token('strong_open', 'strong', 1))
+    fragments.push(createTextToken(match[1]))
+    fragments.push(new Token('strong_close', 'strong', -1))
+    cursor = end
+  }
+
+  if (!matched) {
+    return [token]
+  }
+
+  if (cursor < token.content.length) {
+    fragments.push(createTextToken(token.content.slice(cursor)))
+  }
+
+  return fragments
+}
+
+function createTextToken(content: string) {
+  const token = new Token('text', '', 0)
+  token.content = content
+  return token
+}
+
+function extractInlineText(token: Token | undefined) {
+  if (!token) {
+    return ''
+  }
+
+  if (!token.children?.length) {
+    return token.content
+  }
+
+  return token.children
+    .filter((child) => child.type !== 'softbreak' && child.type !== 'hardbreak')
+    .map((child) => child.content)
+    .join('')
 }
 
 function createUniqueSlug(text: string, counts: Map<string, number>) {

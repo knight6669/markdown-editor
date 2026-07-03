@@ -31,7 +31,6 @@ import {
   Maximize2,
   Minus,
   NotebookPen,
-  Pencil,
   Printer,
   Quote,
   RotateCcw,
@@ -121,6 +120,13 @@ import type {
   SaveStatus,
 } from './types/editor'
 
+const DESKTOP_EDITOR_MIN_WIDTH = 560
+const DESKTOP_EDITOR_MIN_WIDTH_WITH_TOOLBAR = 720
+const DESKTOP_PREVIEW_MIN_WIDTH = 420
+const MOBILE_EDITOR_MIN_HEIGHT = 320
+const MOBILE_EDITOR_MIN_HEIGHT_WITH_TOOLBAR = 380
+const MOBILE_PREVIEW_MIN_HEIGHT = 260
+
 const TOOLBAR_ACTIONS: ToolbarAction[] = [
   { id: 'h1', label: 'H1', icon: Heading1 },
   { id: 'h2', label: 'H2', icon: Heading2 },
@@ -159,8 +165,9 @@ function App() {
   const syncTimeoutRef = useRef<number | null>(null)
   const previewFollowFrameRef = useRef<number | null>(null)
   const previewFollowTargetRef = useRef<number | null>(null)
+  const previewManualScrollPauseUntilRef = useRef(0)
+  const isPreviewPointerActiveRef = useRef(false)
   const previewSyncModeRef = useRef<'selection' | 'scroll'>('selection')
-  const isPreviewManualScrollRef = useRef(false)
   const dragCounterRef = useRef(0)
   const savePayloadRef = useRef({
     markdown: DEFAULT_MARKDOWN,
@@ -268,17 +275,31 @@ function App() {
     previewFollowTargetRef.current = null
   }, [])
 
-  const pausePreviewSync = useCallback(() => {
-    isPreviewManualScrollRef.current = true
-    stopPreviewFollowAnimation()
-  }, [stopPreviewFollowAnimation])
+  const isPreviewManualScrollPaused = useCallback(
+    () => window.performance.now() < previewManualScrollPauseUntilRef.current,
+    [],
+  )
 
-  const resumePreviewSync = useCallback(() => {
-    isPreviewManualScrollRef.current = false
+  const pausePreviewAutoFollow = useCallback(
+    (durationMs = 1200) => {
+      previewManualScrollPauseUntilRef.current =
+        window.performance.now() + durationMs
+      stopPreviewFollowAnimation()
+    },
+    [stopPreviewFollowAnimation],
+  )
+
+  const resumePreviewAutoFollow = useCallback(() => {
+    previewManualScrollPauseUntilRef.current = 0
   }, [])
 
   const animatePreviewFollowTo = useCallback(
     (container: HTMLElement, targetTop: number) => {
+      if (isPreviewManualScrollPaused()) {
+        stopPreviewFollowAnimation()
+        return
+      }
+
       previewFollowTargetRef.current = targetTop
 
       if (previewFollowFrameRef.current !== null) {
@@ -286,6 +307,11 @@ function App() {
       }
 
       const tick = () => {
+        if (isPreviewManualScrollPaused()) {
+          stopPreviewFollowAnimation()
+          return
+        }
+
         const nextTarget = previewFollowTargetRef.current
         if (nextTarget === null) {
           previewFollowFrameRef.current = null
@@ -305,7 +331,7 @@ function App() {
 
       previewFollowFrameRef.current = window.requestAnimationFrame(tick)
     },
-    [],
+    [isPreviewManualScrollPaused, stopPreviewFollowAnimation],
   )
 
   const setWorkspaceViewMode = useCallback(
@@ -325,11 +351,11 @@ function App() {
     lineNumber: number,
     mode: 'selection' | 'scroll' = 'selection',
   ) => {
-    resumePreviewSync()
+    resumePreviewAutoFollow()
     previewSyncModeRef.current = mode
     setActiveSourceLine(lineNumber)
     setSourceSelectionRevision((current) => current + 1)
-  }, [resumePreviewSync])
+  }, [resumePreviewAutoFollow])
 
   const saveNow = () => {
     persistCurrentDraft('manual')
@@ -351,8 +377,6 @@ function App() {
     onOpenCommandPalette: openCommandPalette,
     onOpenFindPanel: openFindPanel,
     onSave: saveNow,
-    onActiveLineChange: (lineNumber) =>
-      updateSyncedSourceLine(lineNumber, 'selection'),
     onVisibleLineChange: (lineNumber) =>
       updateSyncedSourceLine(lineNumber, 'scroll'),
   })
@@ -473,37 +497,60 @@ function App() {
 
   useEffect(() => {
     const previewNode = previewScrollRef.current
-    if (!previewNode) {
+    if (!previewNode || !showPreviewPanel) {
       return
     }
 
-    const handleManualPreviewInteraction = () => {
-      pausePreviewSync()
+    const handlePreviewManualScroll = () => {
+      pausePreviewAutoFollow()
     }
 
-    previewNode.addEventListener('wheel', handleManualPreviewInteraction, {
+    const handlePreviewPointerDown = () => {
+      isPreviewPointerActiveRef.current = true
+      pausePreviewAutoFollow()
+    }
+
+    const handlePreviewPointerMove = () => {
+      if (isPreviewPointerActiveRef.current) {
+        pausePreviewAutoFollow()
+      }
+    }
+
+    const handlePreviewPointerEnd = () => {
+      isPreviewPointerActiveRef.current = false
+    }
+
+    previewNode.addEventListener('wheel', handlePreviewManualScroll, {
       passive: true,
     })
-    previewNode.addEventListener('touchstart', handleManualPreviewInteraction, {
+    previewNode.addEventListener('touchstart', handlePreviewManualScroll, {
       passive: true,
     })
-    previewNode.addEventListener('pointerdown', handleManualPreviewInteraction, {
+    previewNode.addEventListener('touchmove', handlePreviewManualScroll, {
       passive: true,
     })
+    previewNode.addEventListener('pointerdown', handlePreviewPointerDown)
+    window.addEventListener('pointermove', handlePreviewPointerMove)
+    window.addEventListener('pointerup', handlePreviewPointerEnd)
+    window.addEventListener('pointercancel', handlePreviewPointerEnd)
 
     return () => {
-      previewNode.removeEventListener('wheel', handleManualPreviewInteraction)
-      previewNode.removeEventListener('touchstart', handleManualPreviewInteraction)
-      previewNode.removeEventListener('pointerdown', handleManualPreviewInteraction)
+      isPreviewPointerActiveRef.current = false
+      previewNode.removeEventListener('wheel', handlePreviewManualScroll)
+      previewNode.removeEventListener('touchstart', handlePreviewManualScroll)
+      previewNode.removeEventListener('touchmove', handlePreviewManualScroll)
+      previewNode.removeEventListener('pointerdown', handlePreviewPointerDown)
+      window.removeEventListener('pointermove', handlePreviewPointerMove)
+      window.removeEventListener('pointerup', handlePreviewPointerEnd)
+      window.removeEventListener('pointercancel', handlePreviewPointerEnd)
     }
-  }, [pausePreviewSync, showPreviewPanel])
+  }, [pausePreviewAutoFollow, showPreviewPanel])
 
   useEffect(() => {
     if (
       !isSyncEnabled ||
       syncSourceRef.current === 'outline' ||
-      !previewScrollRef.current ||
-      isPreviewManualScrollRef.current
+      !previewScrollRef.current
     ) {
       stopPreviewFollowAnimation()
       return
@@ -511,6 +558,11 @@ function App() {
 
     const previewNode = previewScrollRef.current
     const frameId = window.requestAnimationFrame(() => {
+      if (isPreviewManualScrollPaused()) {
+        stopPreviewFollowAnimation()
+        return
+      }
+
       const previewAnchors = collectPreviewAnchors(previewNode)
       if (previewSyncModeRef.current === 'scroll') {
         const targetTop = getPreviewTargetTopForLine(
@@ -543,6 +595,7 @@ function App() {
   }, [
     activeSourceLine,
     animatePreviewFollowTo,
+    isPreviewManualScrollPaused,
     isSyncEnabled,
     renderedDocument.html,
     sourceSelectionRevision,
@@ -561,14 +614,17 @@ function App() {
       }
 
       const bounds = workspace.getBoundingClientRect()
-      const minRatio = isMobile ? MIN_MOBILE_RATIO : MIN_DESKTOP_RATIO
-      const maxRatio = isMobile ? MAX_MOBILE_RATIO : MAX_DESKTOP_RATIO
+      const { minRatio, maxRatio } = getSplitRatioBounds({
+        containerSize: isMobile ? bounds.height : bounds.width,
+        isMobile,
+        isToolbarVisible,
+      })
 
       const nextRatio = isMobile
         ? ((event.clientY - bounds.top) / bounds.height) * 100
         : ((event.clientX - bounds.left) / bounds.width) * 100
 
-      setSplitRatio(Math.min(maxRatio, Math.max(minRatio, nextRatio)))
+      setSplitRatio(clamp(nextRatio, minRatio, maxRatio))
     }
 
     const stopDragging = () => {
@@ -584,7 +640,41 @@ function App() {
       window.removeEventListener('pointerup', stopDragging)
       window.removeEventListener('pointercancel', stopDragging)
     }
-  }, [isDraggingSplitter, isMobile])
+  }, [isDraggingSplitter, isMobile, isToolbarVisible])
+
+  useEffect(() => {
+    if (!showEditorPanel || !showPreviewPanel) {
+      return
+    }
+
+    const workspace = workspaceRef.current
+    if (!workspace) {
+      return
+    }
+
+    const clampRatioWithinBounds = () => {
+      const bounds = workspace.getBoundingClientRect()
+      const { minRatio, maxRatio } = getSplitRatioBounds({
+        containerSize: isMobile ? bounds.height : bounds.width,
+        isMobile,
+        isToolbarVisible,
+      })
+
+      setSplitRatio((current) => clamp(current, minRatio, maxRatio))
+    }
+
+    clampRatioWithinBounds()
+
+    const resizeObserver = new ResizeObserver(() => {
+      clampRatioWithinBounds()
+    })
+
+    resizeObserver.observe(workspace)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [isMobile, isToolbarVisible, showEditorPanel, showPreviewPanel])
 
   useEffect(() => {
     const handleWindowKeyDown = (event: KeyboardEvent) => {
@@ -1048,7 +1138,7 @@ function App() {
                 {showPreviewPanel ? (
                   <section className="panel panel--preview" aria-label="实时预览区">
                     <div className="panel-header panel-header--compact panel-header--bare panel-header--end">
-                      <span className="preview-badge">GFM + 光标跟随</span>
+                      <span className="preview-badge">GFM + 滚动跟随</span>
                     </div>
 
                     <div className="preview-surface">
@@ -1079,16 +1169,7 @@ function App() {
               Copyright©2026 Knight | 贺.AllRights Reserved
             </div>
           </footer>
-        ) : (
-          <button
-            type="button"
-            className="focus-exit-button"
-            onClick={() => setIsFocusMode(false)}
-          >
-            <Pencil size={16} />
-            退出专注模式
-          </button>
-        )}
+        ) : null}
 
         {toastMessage ? <div className="toast">{toastMessage}</div> : null}
       </div>
@@ -1452,7 +1533,7 @@ function App() {
   }
 
   function handleSelectOutlineItem(item: MarkdownOutlineItem) {
-    resumePreviewSync()
+    resumePreviewAutoFollow()
     setActiveSourceLine(item.lineStart)
     setIsMobileOutlineOpen(false)
     syncSourceRef.current = 'outline'
@@ -1612,6 +1693,64 @@ function formatTimestamp(timestamp: number | null) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(timestamp)
+}
+
+function getSplitRatioBounds({
+  containerSize,
+  isMobile,
+  isToolbarVisible,
+}: {
+  containerSize: number
+  isMobile: boolean
+  isToolbarVisible: boolean
+}) {
+  const baseMinRatio = isMobile ? MIN_MOBILE_RATIO : MIN_DESKTOP_RATIO
+  const baseMaxRatio = isMobile ? MAX_MOBILE_RATIO : MAX_DESKTOP_RATIO
+
+  if (containerSize <= 0) {
+    return {
+      minRatio: baseMinRatio,
+      maxRatio: baseMaxRatio,
+    }
+  }
+
+  const primaryMinSize = isMobile
+    ? isToolbarVisible
+      ? MOBILE_EDITOR_MIN_HEIGHT_WITH_TOOLBAR
+      : MOBILE_EDITOR_MIN_HEIGHT
+    : isToolbarVisible
+      ? DESKTOP_EDITOR_MIN_WIDTH_WITH_TOOLBAR
+      : DESKTOP_EDITOR_MIN_WIDTH
+
+  const secondaryMinSize = isMobile
+    ? MOBILE_PREVIEW_MIN_HEIGHT
+    : DESKTOP_PREVIEW_MIN_WIDTH
+
+  const minRatio = Math.max(
+    baseMinRatio,
+    (primaryMinSize / containerSize) * 100,
+  )
+  const maxRatio = Math.min(
+    baseMaxRatio,
+    100 - (secondaryMinSize / containerSize) * 100,
+  )
+
+  if (minRatio > maxRatio) {
+    const fallback = clamp(50, baseMinRatio, baseMaxRatio)
+    return {
+      minRatio: fallback,
+      maxRatio: fallback,
+    }
+  }
+
+  return {
+    minRatio,
+    maxRatio,
+  }
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value))
 }
 
 function hasDropPayload(dataTransfer: DataTransfer) {

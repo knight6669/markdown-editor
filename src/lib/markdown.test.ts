@@ -26,6 +26,23 @@ describe('markdown rendering', () => {
     expect(rendered.html).toContain('data-heading-slug="title"')
   })
 
+  it('keeps strong emphasis when content ends with Chinese punctuation', () => {
+    const rendered = renderMarkdownDocument(
+      '如**123、**，**我们，** **我们？** **我们！**',
+    )
+
+    expect(rendered.html).toContain('<strong>123、</strong>')
+    expect(rendered.html).toContain('<strong>我们，</strong>')
+    expect(rendered.html).toContain('<strong>我们？</strong>')
+    expect(rendered.html).toContain('<strong>我们！</strong>')
+  })
+
+  it('renders strong emphasis when markers are adjacent to Chinese text', () => {
+    const rendered = renderMarkdownDocument('覆盖经营主体**类型、**行业门类')
+
+    expect(rendered.html).toContain('覆盖经营主体<strong>类型、</strong>行业门类')
+  })
+
   it('builds a standalone html export with outline links and styles', () => {
     const html = buildStandaloneHtml(
       '# Demo\n\n## Section\n\n### Detail',
