@@ -1085,6 +1085,18 @@ function App() {
                   ) : null}
                 </div>
 
+                {isFocusMode ? (
+                  <button
+                    type="button"
+                    className="focus-exit-button"
+                    onClick={() => setIsFocusMode(false)}
+                    aria-label="退出专注模式"
+                  >
+                    <Focus size={14} />
+                    退出专注模式
+                  </button>
+                ) : null}
+
                 <div className="workspace-viewbar workspace-viewbar--summary">
                   <div
                     className="segmented-control segmented-control--compact"

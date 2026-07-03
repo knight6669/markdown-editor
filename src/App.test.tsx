@@ -68,6 +68,32 @@ describe('App mobile layout', () => {
 })
 
 describe('App desktop layout', () => {
+  it('shows an exit control after entering focus mode', async () => {
+    mockMatchMedia({
+      '(max-width: 767px)': false,
+      '(prefers-color-scheme: dark)': false,
+    })
+
+    const user = userEvent.setup()
+    const { container } = render(<App />)
+
+    await user.click(within(container).getByRole('button', { name: '专注模式' }))
+
+    const exitFocusButton = within(container).getByRole('button', {
+      name: '退出专注模式',
+    })
+    expect(exitFocusButton).toBeInTheDocument()
+    expect(within(container).queryByRole('banner')).not.toBeInTheDocument()
+
+    await user.click(exitFocusButton)
+
+    await waitFor(() => {
+      expect(
+        within(container).getByRole('button', { name: '专注模式' }),
+      ).toBeInTheDocument()
+    })
+  })
+
   it('switches between split, preview and editor modes on desktop', async () => {
     mockMatchMedia({
       '(max-width: 767px)': false,
