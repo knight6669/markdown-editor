@@ -118,6 +118,23 @@ describe('App desktop layout', () => {
 })
 
 describe('App outline navigation', () => {
+  it('highlights the preview block that matches the active editor line', async () => {
+    mockMatchMedia({
+      '(max-width: 767px)': false,
+      '(prefers-color-scheme: dark)': false,
+    })
+
+    const { container } = render(<App />)
+
+    await waitFor(() => {
+      const highlightedBlock = container.querySelector<HTMLElement>(
+        '.preview-scroll .md-source-block--cursor',
+      )
+
+      expect(highlightedBlock?.dataset.sourceLine).toBe('1')
+    })
+  })
+
   it('scrolls the preview panel to the matching heading when an outline item is clicked', async () => {
     mockMatchMedia({
       '(max-width: 767px)': false,

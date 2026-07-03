@@ -167,6 +167,8 @@ function App() {
   const previewFollowTargetRef = useRef<number | null>(null)
   const previewManualScrollPauseUntilRef = useRef(0)
   const isPreviewPointerActiveRef = useRef(false)
+  const previewCursorElementRef = useRef<HTMLElement | null>(null)
+  const previewCursorPulseTimeoutRef = useRef<number | null>(null)
   const previewSyncModeRef = useRef<'selection' | 'scroll'>('selection')
   const dragCounterRef = useRef(0)
   const savePayloadRef = useRef({
@@ -211,6 +213,8 @@ function App() {
   const [isDropActive, setIsDropActive] = useState(false)
   const [isToolbarVisible, setIsToolbarVisible] = useState(false)
   const [activeSourceLine, setActiveSourceLine] = useState(1)
+  const [previewCursorLine, setPreviewCursorLine] = useState(1)
+  const [previewCursorRevision, setPreviewCursorRevision] = useState(0)
   const [sourceSelectionRevision, setSourceSelectionRevision] = useState(0)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [isMobileOutlineOpen, setIsMobileOutlineOpen] = useState(false)
@@ -273,6 +277,21 @@ function App() {
     }
 
     previewFollowTargetRef.current = null
+  }, [])
+
+  const clearPreviewCursorHighlight = useCallback(() => {
+    if (previewCursorPulseTimeoutRef.current !== null) {
+      window.clearTimeout(previewCursorPulseTimeoutRef.current)
+      previewCursorPulseTimeoutRef.current = null
+    }
+
+    if (previewCursorElementRef.current) {
+      previewCursorElementRef.current.classList.remove(
+        'md-source-block--cursor',
+        'md-source-block--cursor-pulse',
+      )
+      previewCursorElementRef.current = null
+    }
   }, [])
 
   const isPreviewManualScrollPaused = useCallback(
@@ -357,6 +376,11 @@ function App() {
     setSourceSelectionRevision((current) => current + 1)
   }, [resumePreviewAutoFollow])
 
+  const updatePreviewCursorLine = useCallback((lineNumber: number) => {
+    setPreviewCursorLine(lineNumber)
+    setPreviewCursorRevision((current) => current + 1)
+  }, [])
+
   const saveNow = () => {
     persistCurrentDraft('manual')
   }
@@ -377,6 +401,7 @@ function App() {
     onOpenCommandPalette: openCommandPalette,
     onOpenFindPanel: openFindPanel,
     onSave: saveNow,
+    onActiveLineChange: updatePreviewCursorLine,
     onVisibleLineChange: (lineNumber) =>
       updateSyncedSourceLine(lineNumber, 'scroll'),
   })
@@ -492,8 +517,50 @@ function App() {
   useEffect(() => {
     return () => {
       stopPreviewFollowAnimation()
+      clearPreviewCursorHighlight()
     }
-  }, [stopPreviewFollowAnimation])
+  }, [clearPreviewCursorHighlight, stopPreviewFollowAnimation])
+
+  useEffect(() => {
+    const previewNode = previewScrollRef.current
+    if (!showPreviewPanel || !previewNode) {
+      clearPreviewCursorHighlight()
+      return
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      clearPreviewCursorHighlight()
+
+      const anchor = findPreviewAnchorForLine(
+        collectPreviewAnchors(previewNode),
+        previewCursorLine,
+      )
+      if (!anchor) {
+        return
+      }
+
+      anchor.element.classList.add(
+        'md-source-block--cursor',
+        'md-source-block--cursor-pulse',
+      )
+      previewCursorElementRef.current = anchor.element
+
+      previewCursorPulseTimeoutRef.current = window.setTimeout(() => {
+        anchor.element.classList.remove('md-source-block--cursor-pulse')
+        previewCursorPulseTimeoutRef.current = null
+      }, 900)
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+    }
+  }, [
+    clearPreviewCursorHighlight,
+    previewCursorLine,
+    previewCursorRevision,
+    renderedDocument.html,
+    showPreviewPanel,
+  ])
 
   useEffect(() => {
     const previewNode = previewScrollRef.current
