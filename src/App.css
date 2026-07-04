@@ -1123,9 +1123,17 @@ select:focus-visible {
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: rgba(12, 18, 20, 0.44);
-  backdrop-filter: blur(14px);
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.14), transparent 26rem),
+    rgba(14, 24, 25, 0.2);
+  backdrop-filter: blur(4px) saturate(1.04);
   z-index: 30;
+}
+
+:root[data-theme='dark'] .dialog-backdrop {
+  background:
+    radial-gradient(circle at 50% 34%, rgba(91, 212, 195, 0.08), transparent 26rem),
+    rgba(3, 10, 12, 0.34);
 }
 
 .settings-backdrop {
@@ -1340,27 +1348,6 @@ select:focus-visible {
 .statusbar .status-group span {
   padding: 0.18rem 0.48rem;
   font-size: 0.72rem;
-}
-
-.drop-overlay {
-  position: fixed;
-  inset: 1rem;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  border: 2px dashed rgba(9, 127, 122, 0.32);
-  border-radius: 2rem;
-  background: rgba(9, 127, 122, 0.08);
-  backdrop-filter: blur(12px);
-  pointer-events: none;
-}
-
-.drop-overlay__card {
-  padding: 1rem 1.2rem;
-  border-radius: 1.2rem;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(9, 127, 122, 0.2);
-  color: var(--headline-text);
 }
 
 .toast {

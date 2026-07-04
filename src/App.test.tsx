@@ -68,6 +68,33 @@ describe('App mobile layout', () => {
 })
 
 describe('App desktop layout', () => {
+  it('mounts fullscreen dialogs inside the app shell', async () => {
+    mockMatchMedia({
+      '(max-width: 767px)': false,
+      '(prefers-color-scheme: dark)': false,
+    })
+
+    const user = userEvent.setup()
+    const { container } = render(<App />)
+    const appShell = container.querySelector<HTMLElement>('.app-shell')
+
+    expect(appShell).toBeTruthy()
+
+    await user.click(within(container).getByRole('button', { name: '设置' }))
+
+    const settingsDialog = within(container).getByRole('dialog')
+    expect(appShell).toContainElement(settingsDialog)
+
+    await user.click(within(settingsDialog).getByRole('button', { name: '关闭' }))
+
+    await user.click(within(container).getByRole('button', { name: '命令面板' }))
+
+    const commandPalette = within(container).getByRole('dialog', {
+      name: '快速执行操作',
+    })
+    expect(appShell).toContainElement(commandPalette)
+  })
+
   it('shows an exit control after entering focus mode', async () => {
     mockMatchMedia({
       '(max-width: 767px)': false,

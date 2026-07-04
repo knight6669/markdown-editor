@@ -1,7 +1,6 @@
 ﻿import {
   type ChangeEvent,
   type CSSProperties,
-  type DragEvent,
   type FormEvent,
   useCallback,
   useEffect,
@@ -63,17 +62,12 @@ import {
 } from './lib/constants'
 import {
   copyTextToClipboard,
-  detectImageUrl,
   downloadTextFile,
-  isImageFile,
-  isLikelyUrl,
   isMarkdownFile,
   normalizeDocumentName,
   openPrintWindow,
-  readFileAsDataUrl,
   readTextFile,
 } from './lib/file'
-import { saveImageAssetDataUrl } from './lib/image-assets'
 import {
   getSearchMatchCount,
   getSelectedEditorText,
@@ -170,7 +164,6 @@ function App() {
   const previewCursorElementRef = useRef<HTMLElement | null>(null)
   const previewCursorPulseTimeoutRef = useRef<number | null>(null)
   const previewSyncModeRef = useRef<'selection' | 'scroll'>('selection')
-  const dragCounterRef = useRef(0)
   const savePayloadRef = useRef({
     markdown: DEFAULT_MARKDOWN,
     documentName: DEFAULT_DOCUMENT_NAME,
@@ -210,7 +203,6 @@ function App() {
   const [replacementText, setReplacementText] = useState('')
   const [isCaseSensitive, setIsCaseSensitive] = useState(false)
   const [isFocusMode, setIsFocusMode] = useState(false)
-  const [isDropActive, setIsDropActive] = useState(false)
   const [isToolbarVisible, setIsToolbarVisible] = useState(false)
   const [activeSourceLine, setActiveSourceLine] = useState(1)
   const [previewCursorLine, setPreviewCursorLine] = useState(1)
@@ -373,6 +365,8 @@ function App() {
     resumePreviewAutoFollow()
     previewSyncModeRef.current = mode
     setActiveSourceLine(lineNumber)
+    setPreviewCursorLine(lineNumber)
+    setPreviewCursorRevision((current) => current + 1)
     setSourceSelectionRevision((current) => current + 1)
   }, [resumePreviewAutoFollow])
 
@@ -923,15 +917,6 @@ function App() {
         ref={appShellRef}
         className={`app-shell ${isFocusMode ? 'app-shell--focus' : ''}`}
       >
-        {isDropActive ? (
-          <div className="drop-overlay" role="presentation">
-            <div className="drop-overlay__card">
-              <p className="eyebrow">拖拽导入</p>
-              <strong>释放以导入 Markdown 或插入图片</strong>
-            </div>
-          </div>
-        ) : null}
-
         {!isFocusMode ? (
           <header className="topbar">
             <div className="brand-block">
@@ -1057,13 +1042,7 @@ function App() {
             />
           ) : null}
 
-          <section
-            className="workspace-card"
-            onDragEnter={handleDragEnter}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
+          <section className="workspace-card">
             <div className="workspace-summary">
               <div>
                 <p className="eyebrow">当前文档</p>
@@ -1250,47 +1229,47 @@ function App() {
           </footer>
         ) : null}
 
+        <SettingsDrawer
+          isOpen={isSettingsOpen}
+          preferences={preferences}
+          resolvedTheme={resolvedTheme}
+          history={draftStore.history}
+          onClose={() => setIsSettingsOpen(false)}
+          onChangePreferences={updatePreferences}
+          onRestoreSnapshot={handleRestoreSnapshot}
+          onClearHistory={handleClearHistory}
+        />
+
+        {isMobileOutlineOpen ? (
+          <div className="dialog-backdrop" role="presentation">
+            <OutlinePanel
+              title="移动端大纲"
+              outline={renderedDocument.outline}
+              activeSlug={activeOutlineSlug}
+              onSelect={handleSelectOutlineItem}
+              onClose={() => setIsMobileOutlineOpen(false)}
+            />
+          </div>
+        ) : null}
+
+        {isCommandPaletteOpen ? (
+          <CommandPalette
+            commands={commandItems}
+            onClose={() => setIsCommandPaletteOpen(false)}
+          />
+        ) : null}
+
+        {insertDialog ? (
+          <InsertDialog
+            dialogState={insertDialog}
+            onChange={setInsertDialog}
+            onClose={() => setInsertDialog(null)}
+            onSubmit={handleDialogSubmit}
+          />
+        ) : null}
+
         {toastMessage ? <div className="toast">{toastMessage}</div> : null}
       </div>
-
-      <SettingsDrawer
-        isOpen={isSettingsOpen}
-        preferences={preferences}
-        resolvedTheme={resolvedTheme}
-        history={draftStore.history}
-        onClose={() => setIsSettingsOpen(false)}
-        onChangePreferences={updatePreferences}
-        onRestoreSnapshot={handleRestoreSnapshot}
-        onClearHistory={handleClearHistory}
-      />
-
-      {isMobileOutlineOpen ? (
-        <div className="dialog-backdrop" role="presentation">
-          <OutlinePanel
-            title="移动端大纲"
-            outline={renderedDocument.outline}
-            activeSlug={activeOutlineSlug}
-            onSelect={handleSelectOutlineItem}
-            onClose={() => setIsMobileOutlineOpen(false)}
-          />
-        </div>
-      ) : null}
-
-      {isCommandPaletteOpen ? (
-        <CommandPalette
-          commands={commandItems}
-          onClose={() => setIsCommandPaletteOpen(false)}
-        />
-      ) : null}
-
-      {insertDialog ? (
-        <InsertDialog
-          dialogState={insertDialog}
-          onChange={setInsertDialog}
-          onClose={() => setInsertDialog(null)}
-          onSubmit={handleDialogSubmit}
-        />
-      ) : null}
     </>
   )
 
@@ -1364,43 +1343,6 @@ function App() {
     return true
   }
 
-  async function insertImageFile(file: File) {
-    const view = editorBridgeRef.current
-    if (!view || !isImageFile(file)) {
-      return false
-    }
-
-    const dataUrl = await readFileAsDataUrl(file)
-    insertImage(
-      view,
-      normalizeDocumentName(file.name),
-      saveImageAssetDataUrl(dataUrl),
-    )
-    showToast(`已插入图片 ${file.name}`)
-    return true
-  }
-
-  async function handleDroppedUrl(value: string) {
-    const view = editorBridgeRef.current
-    if (!view || !value.trim()) {
-      return
-    }
-
-    if (await detectImageUrl(value)) {
-      insertImage(view, '拖拽图片', value)
-      showToast('已插入拖拽图片链接')
-      return
-    }
-
-    if (isLikelyUrl(value)) {
-      insertLink(view, value, value)
-      showToast('已插入链接')
-      return
-    }
-
-    insertImage(view, '鎷栨嫿鍥剧墖', value)
-  }
-
   async function handleImportedFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) {
@@ -1409,62 +1351,6 @@ function App() {
 
     await importMarkdownFile(file)
     event.target.value = ''
-  }
-
-  async function handleDrop(event: DragEvent<HTMLElement>) {
-    event.preventDefault()
-    dragCounterRef.current = 0
-    setIsDropActive(false)
-
-    const files = Array.from(event.dataTransfer.files)
-    const markdownFile = files.find(isMarkdownFile)
-    if (markdownFile) {
-      await importMarkdownFile(markdownFile)
-      return
-    }
-
-    const imageFile = files.find(isImageFile)
-    if (imageFile) {
-      await insertImageFile(imageFile)
-      return
-    }
-
-    const droppedUrl =
-      event.dataTransfer.getData('text/uri-list') ||
-      event.dataTransfer.getData('text/plain')
-    if (droppedUrl.trim()) {
-      await handleDroppedUrl(droppedUrl.trim())
-    }
-  }
-
-  function handleDragEnter(event: DragEvent<HTMLElement>) {
-    if (!hasDropPayload(event.dataTransfer)) {
-      return
-    }
-
-    event.preventDefault()
-    dragCounterRef.current += 1
-    setIsDropActive(true)
-  }
-
-  function handleDragOver(event: DragEvent<HTMLElement>) {
-    if (!hasDropPayload(event.dataTransfer)) {
-      return
-    }
-
-    event.preventDefault()
-  }
-
-  function handleDragLeave(event: DragEvent<HTMLElement>) {
-    if (!hasDropPayload(event.dataTransfer)) {
-      return
-    }
-
-    event.preventDefault()
-    dragCounterRef.current = Math.max(0, dragCounterRef.current - 1)
-    if (dragCounterRef.current === 0) {
-      setIsDropActive(false)
-    }
   }
 
   function handleDialogSubmit(event: FormEvent<HTMLFormElement>) {
@@ -1830,14 +1716,6 @@ function getSplitRatioBounds({
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
-}
-
-function hasDropPayload(dataTransfer: DataTransfer) {
-  return (
-    dataTransfer.types.includes('Files') ||
-    dataTransfer.types.includes('text/uri-list') ||
-    dataTransfer.types.includes('text/plain')
-  )
 }
 
 export default App
